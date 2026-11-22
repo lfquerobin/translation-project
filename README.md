@@ -4,8 +4,9 @@ Guia para criar e manter projetos de tradução literária para o português bra
 
 - [Guia editorial](AGENTS.md)
 - [Como criar um projeto e preencher os arquivos](docs/criar-projeto.md)
+- [Como traduzir um EPUB para Markdown](docs/traduzir-epub.md)
 - [Modelos iniciais copiáveis](modelos/projeto/)
 - [Registro estruturado e verificador](docs/registro-e-verificador.md)
 - [Índice de projetos](projetos/README.md)
 
-O guia reúne práticas adotadas e verificadas no trabalho com Re:Zero. As convenções de uma obra ficam no seu próprio repositório e podem variar conforme a edição, os idiomas e a forma de publicação.
+O guia reúne práticas adotadas no trabalho com *Re:Zero* e *Diários de uma Apotecária*. As convenções de uma obra ficam no seu próprio repositório e podem variar conforme a edição, os idiomas e a forma de publicação.

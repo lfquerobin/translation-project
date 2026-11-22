@@ -11,6 +11,8 @@ O objetivo é produzir traduções naturais em português brasileiro, preservand
 
 Use `Referências/` conforme houver material auxiliar local. Para automatizar o acompanhamento, consulte o [guia de registro e verificador](docs/registro-e-verificador.md).
 
+Para obras em EPUB com entrega em Markdown, siga o [guia de preparação do volume e preservação das ilustrações](docs/traduzir-epub.md).
+
 ## Preparar a tradução
 
 - Confira se o original e qualquer fonte intermediária correspondem à mesma versão e unidade da obra. Compare títulos, numeração, edição e começo e fim quando houver dúvida. Trate índices de erros e guias de outras versões como referências para investigar passagens.
@@ -36,6 +38,7 @@ Antes de corrigir uma passagem, confira a redação vigente e localize a evidên
 ## Registrar e entregar
 
 - Registre decisões reutilizáveis com o termo no original, a forma adotada, o contexto, a versão, a unidade da obra e uma referência verificável. Distinga erro da fonte intermediária confirmado pelo original, adaptação deliberada e interpretação incerta. Ao mudar uma decisão do glossário, localize as passagens afetadas e confira o impacto no contexto.
+- Registre a cobertura da tradução, o cotejo com o original, o cotejo com a intermediária quando houver e a releitura em português como etapas distintas. Identifique a primeira passagem automatizada como versão de trabalho. Informe o trecho conferido quando o cotejo for parcial.
 - Registre somente revisões realizadas, com data e escopo. Preserve o histórico ao registrar trabalho anterior. Coteje os trechos alterados após mudanças de conteúdo; alterações extensas pedem nova revisão integral. Após mudar a apresentação, verifique se a releitura contínua da versão final ainda está pendente.
 - Salve o texto integral no formato da obra. Confira no cabeçalho o título, o link, a data de publicação e o crédito da fonte usada. Indique dados ausentes com precisão e preserve as marcações pertinentes no texto e no nome do arquivo.
 - Execute o verificador da obra, quando houver, e confira os arquivos gerados. Use alertas automáticos para localizar problemas objetivos. A confirmação de sentido, voz, cobertura e falantes exige leitura. Na entrega, indique o arquivo salvo, as correções relevantes e as dúvidas ou limitações que permanecerem.

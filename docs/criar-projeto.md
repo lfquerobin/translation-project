@@ -18,7 +18,7 @@ Use um repositório próprio para cada obra ou versão em trabalho. O [guia edit
 | `LINKS.md` | Fontes originais, intermediárias e auxiliares, com idioma, edição, crédito quando conhecido, escopo e limites de uso. | Ao confirmar fontes, trocar links ou atualizar referências. |
 | `GLOSSÁRIO.md` | Termo original, forma adotada, contexto, versão ou unidade, fonte e situação da decisão. Se uma escolha mudar, registre a anterior, o motivo e as unidades afetadas. | Ao confirmar, corrigir ou deixar em aberto uma decisão reutilizável. |
 | `VOZES.md` | Exemplos contextualizados por personagem ou voz narrativa, com interlocutor, situação, original e tradução adotada. Distinga exemplos conferidos de observações auxiliares. | Ao confirmar um padrão de fala ou ajustar um exemplo. |
-| `ACOMPANHAMENTO.md` | Uma entrada por unidade, com caminho, fontes e estados de fidelidade, naturalidade, falantes quando houver e formato. Registre data e escopo das etapas realizadas. | Ao adicionar, revisar ou renomear uma unidade. |
+| `ACOMPANHAMENTO.md` | Uma entrada por unidade, com caminho, fontes e estados de cobertura, cotejo com cada fonte, naturalidade, falantes quando houver e formato. Registre data e escopo das etapas realizadas. | Ao adicionar, revisar ou renomear uma unidade. |
 | `PENDÊNCIAS.md` | Um registro por ocorrência, com unidade, trecho, motivo, fonte e próximo passo. Para falante incerto, inclua original e candidatos. Registre anonimato narrativo separadamente. | Ao abrir, investigar ou resolver uma dúvida. Preserve a evidência da resolução. |
 
 As tabelas podem começar vazias. Uma unidade futura só deve constar como traduzida ou revisada depois da etapa correspondente.
@@ -38,6 +38,8 @@ Um cabeçalho em Markdown pode seguir este formato. Use os dados reais da unidad
 **Data de publicação: <data da fonte ou indicação de ausência>**
 **Traduzido por: <crédito da fonte e idioma, quando necessário>**
 ```
+
+Para edições em EPUB, consulte o [guia de conversão para Markdown](traduzir-epub.md) para catalogar o volume e preservar a sequência de leitura e as imagens.
 
 ## 4. Adotar automação quando for útil
 

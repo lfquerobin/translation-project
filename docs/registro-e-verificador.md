@@ -28,8 +28,10 @@ Ao cadastrar uma unidade, use um ID que continue valendo se o arquivo for renome
     "original": null,
     "intermediaria": null
   },
+  "cobertura": {"estado": "pendente", "escopo": null},
   "revisoes": {
-    "fidelidade": {"estado": "pendente", "data": null, "escopo": null},
+    "fidelidade_original": {"estado": "pendente", "data": null, "escopo": null},
+    "fidelidade_intermediaria": {"estado": "pendente", "data": null, "escopo": null},
     "naturalidade": {"estado": "pendente", "data": null, "escopo": null},
     "falantes": {"estado": "pendente", "data": null, "escopo": null},
     "formato": {"estado": "pendente", "data": null, "escopo": null}
@@ -37,7 +39,7 @@ Ao cadastrar uma unidade, use um ID que continue valendo se o arquivo for renome
 }
 ```
 
-No campo `escopo`, indique o que foi conferido ou por que a etapa continua aberta. Distinga etapas pendentes, concluídas, históricas e com questões em investigação. Uma ocorrência deve ter ID próprio, ID da unidade, trecho exato, tipo, motivo e fonte. Para atribuição pendente, registre também original quando disponível, candidatos, estado e próximo passo. Ao resolver, preserve a conclusão e sua evidência.
+Use `cobertura` para registrar se a unidade tem tradução integral ou parcial e se o texto está em versão de trabalho. Nos campos de revisão, indique o trecho conferido de cada fonte ou por que a etapa continua aberta. Indique que o cotejo com a intermediária é inaplicável quando a tradução partir diretamente do original. Distinga etapas pendentes, concluídas, históricas e com questões em investigação. Uma ocorrência deve ter ID próprio, ID da unidade, trecho exato, tipo, motivo e fonte. Para atribuição pendente, registre também original quando disponível, candidatos, estado e próximo passo. Ao resolver, preserve a conclusão e sua evidência.
 
 ## Vistas e migração
 
@@ -54,6 +56,7 @@ Se criar `tools/verificar_projeto.py`, siga as convenções documentadas pela ob
 - Separadores, delimitadores de fala, rótulos repetidos e outros problemas objetivos previstos pelo formato. Dê contexto às marcações ambíguas para revisão humana.
 - Correspondência entre as ocorrências de falante anônimo e o registro, incluindo repetições idênticas na mesma unidade. A identidade ocultada pela narrativa e a dúvida editorial têm tratamentos distintos.
 - Variantes do glossário explicitamente cadastradas como alertas, com indicação de arquivo e trecho. A decisão de substituição depende do contexto.
+- Para volumes ilustrados, destinos dos links do sumário e referências a imagens. Quando houver um inventário da edição, compare também a cobertura e a sequência registradas.
 - Correspondência entre o registro e as vistas geradas.
 
 Mantenha a conferência comum em modo de leitura. Separe a opção de regenerar vistas e limite as escritas aos arquivos gerados. Documente os comandos e a distinção entre erro, aviso e pendência editorial. Se o projeto não usar determinado cabeçalho, marcador ou separador, adapte a validação à convenção local.
