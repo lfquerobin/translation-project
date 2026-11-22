@@ -4,10 +4,12 @@ O objetivo é produzir traduções naturais em português brasileiro, preservand
 
 ## Criar um projeto
 
-1. Use um repositório próprio para a obra em tradução. Identifique no README a obra, a versão ou edição, o idioma de origem, o idioma de destino e a situação do projeto. Se a edição ou a fonte ainda estiver em seleção, registre isso como uma decisão em aberto.
-2. Registre no `AGENTS.md` local a ligação com este guia e as convenções da obra. Defina a organização por volume, arco, fase ou capítulo conforme o material. Registre as regras de cabeçalho, nomes dos arquivos, falas, pensamentos, notas, separadores e eventuais marcadores de situação.
-3. A partir dos primeiros textos, mantenha um glossário, referências de voz e um acompanhamento com fontes, revisões e dúvidas relevantes. Escolha os formatos que o projeto realmente usa. Se houver um registro estruturado e vistas geradas, atualize o registro e regenere as vistas.
+1. Use um repositório próprio para cada obra ou versão. Siga o [passo a passo de criação](docs/criar-projeto.md) e copie os [modelos de arquivos](modelos/projeto/) para a raiz do repositório da obra.
+2. Prepare `README.md` e `AGENTS.md` para definir escopo e convenções, `LINKS.md` para as fontes, `GLOSSÁRIO.md` e `VOZES.md` para as decisões editoriais e `ACOMPANHAMENTO.md` e `PENDÊNCIAS.md` para registrar o trabalho. Preencha os dados verificáveis e mantenha em aberto o que ainda depende da edição ou da fonte.
+3. Antes de salvar a primeira unidade, confirme a edição, as fontes e as convenções de arquivo, cabeçalho, diálogo, notas, estado e revisão. Registre as escolhas no repositório da obra. Se já houver registros estruturados, use a fonte de verdade definida pela obra.
 4. Adicione o link, a versão e a situação do repositório no [índice de projetos](projetos/README.md).
+
+Use `Referências/` conforme houver material auxiliar local. Para automatizar o acompanhamento, consulte o [guia de registro e verificador](docs/registro-e-verificador.md).
 
 ## Preparar a tradução
 
