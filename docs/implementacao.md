@@ -10,9 +10,9 @@
 | 3 · Importação | Concluída | Descoberta, confirmação, reexecução e confronto de edições validados com EPUB sintético. |
 | 4 · CLI e vistas | Concluída | Wheel e comando instalado conferidos a partir de outro diretório. Vistas e verificações cobertas por testes. |
 | 5 · Glossário e vozes | Concluída | Esquemas opcionais, alertas contextuais e vistas integrados à CLI. |
-| 6 · Memória | Pendente | Depende da estabilização dos registros. |
-| 7 · Instruções e painel | Pendente | Preservar o guia editorial central. |
-| 8 · CI e integração | Em andamento | Matriz Windows/Linux com Python 3.10 e 3.14 configurada. |
+| 6 · Memória | Em andamento | Índice local e busca implementados e testados. Falta o teste ponta a ponta pela CLI e fechar o contrato dos segmentos. |
+| 7 · Instruções e painel | Pendente | Acrescentar protocolo de retomada e painel opcional, preservando o guia editorial central. |
+| 8 · CI e integração | Em andamento | Matriz Windows/Linux configurada. Faltam execução na matriz, validação formal de schemas e demonstração ponta a ponta. |
 
 ## Diagnóstico inicial
 
@@ -63,3 +63,27 @@
 - O glossário e as vozes usam os schemas v1 de `schemas/`. A geração optativa de `GLOSSÁRIO.md` e `VOZES.md` preserva referências e histórico. Os dados canônicos permanecem em JSON, e a proteção de vistas impede perda de notas em arquivos manuais.
 - A suíte passou com 33 testes. Os quatro novos casos exercitam contexto, flexão, Unicode NFD, citações, versões anteriores de termos, homônimas, referências de exemplos e preservação de notas e histórico. A fase 4 já exercita falas idênticas tratadas como ocorrências distintas.
 - A validação terminológica é uma busca configurável e exige leitura de contexto. Ela não infere flexões ou falantes e não aplica substituições.
+
+## Fase 6
+
+- `memoria.py` implementa um índice SQLite local em `.traducao/memoria.sqlite3`, fora do versionamento. A atualização compara hashes, remove órfãos e pode reconstruir o índice. Os dados canônicos permanecem em JSON e Markdown.
+- A consulta exige obra, versão e última unidade permitida. `visivel_apos` adia a exposição de um segmento que depende de uma revelação posterior. Contexto futuro e versões de trabalho exigem opções explícitas. A busca recalcula a vigência, exige que a tradução aprovada conste no texto salvo e filtra novamente os candidatos do índice antigo antes de retornar trechos.
+- Validados no Windows, Python 3.14.7, com `python -B -m unittest discover -s tests -v`. Os 37 testes passaram. Os quatro testes novos cobrem limites narrativos, isolamento de edição, perda de vigência, trecho ausente mesmo com hash igual, busca simples, exclusões, reconstrução e leitura sem escritas. O comando `python -B -m src.translation_project memoria buscar --help` também foi exercitado.
+- A configuração inicial usa `convencoes.memoria.segmentos` com o caminho relativo para `{"schema": 1, "segmentos": [...]}`. Cada segmento tem `id`, `unidade`, `traducao`, `referencia` e, quando comprovado, `hash_texto`. A busca usa FTS5 quando disponível e tem alternativa lexical. Falta testar a abertura de um índice com FTS5 em ambiente compilado sem esse módulo. A alternativa forçada com `--sem-fts` foi testada.
+
+## Retomada
+
+O trabalho desta sessão está em commits locais na `main` de `translation-project`. A base é `db32b1c`. As fases 0 a 5 correspondem, na ordem, a `42cdec6`, `2a3ea4d`, `d061fbf`, `7d6f3dd`, `dbb1315` e `9e5780a`. O commit seguinte contém a memória local e este ponto de retomada. O plano original segue como arquivo local e as configurações locais do Obsidian seguem fora dos commits. Nenhum repositório de obra foi alterado nesta sessão.
+
+1. Reexecute `python -B -m unittest discover -s tests -v` e `git diff --check`. Confirme o estado com `git status --short --branch`.
+2. Feche a fase 6. Formalize o schema dos segmentos, documente a configuração e teste a sequência completa pela CLI com fixtures sintéticas. Exercite a abertura de índice criado com FTS5 num ambiente sem o módulo. Confirme o fallback, a reconstrução e a remoção de órfãos. Preserve a checagem de vigência e os filtros narrativos. Meça o custo de atualização e busca antes de ampliar a indexação.
+3. Implemente a fase 7. Mantenha as invariantes no `AGENTS.md` e acrescente protocolo de retomada e matriz de leitura apenas se reduzirem repetição. Gere painel Markdown opcional e determinístico, com contagens por volume e por etapa, itens inaplicáveis, inspeções de imagem, revisões desatualizadas e dúvidas bloqueantes. Teste o caso de projeto vazio.
+4. Conclua a fase 8. Valide os schemas e links de documentação, teste a instalação atual a partir de outro diretório e rode a matriz Windows/Linux em Python 3.10 e 3.14. A wheel já foi testada no Windows na fase 4. Nesta sessão, o WSL respondeu com acesso negado e a matriz remota não foi executada. Demonstre o fluxo sintético de inicialização, importação, verificação, migração, geração de vistas e busca.
+
+Comandos para testar a memória depois de preparar uma obra sintética com o registro de segmentos:
+
+```sh
+python -B -m src.translation_project memoria atualizar --projeto "/caminho/obra" --dry-run
+python -B -m src.translation_project memoria atualizar --projeto "/caminho/obra" --aplicar
+python -B -m src.translation_project memoria buscar "trecho sintético" --projeto "/caminho/obra" --obra "Obra sintética" --versao E1 --ate C01
+```

@@ -3,6 +3,7 @@
 import argparse
 from dataclasses import asdict
 from pathlib import Path
+import sqlite3
 import sys
 from xml.etree.ElementTree import ParseError
 from zipfile import BadZipFile
@@ -13,6 +14,7 @@ from .editorial import abrir_editorial, ocorrencias_glossario, validar_vozes
 from .epub import Pacote, caminho_registro
 from .importacao import confirmar, conferir_destinos, descobrir, publicar_importacao
 from .inicializacao import iniciar
+from .memoria import atualizar as atualizar_memoria, buscar as buscar_memoria
 from .migracao import invalidar, migrar, salvar_copia
 from .registro import abrir_projeto, calcular_status, validar_registro
 from .validacao import validar_entrega, verificar_projeto
@@ -179,6 +181,21 @@ def _editorial(args):
     return int(bool(achados) and getattr(args, "estrito", False))
 
 
+def _memoria(args):
+    dados, raiz = abrir_projeto(args.projeto)
+    if args.acao == "atualizar":
+        resultado = atualizar_memoria(
+            dados, raiz, aplicar=args.aplicar, reconstruir=args.reconstruir, sem_fts=args.sem_fts,
+        )
+    else:
+        resultado = buscar_memoria(
+            dados, raiz, args.consulta, obra=args.obra, versao=args.versao, ate=args.ate,
+            futuro=args.incluir_futuro, trabalho=args.incluir_trabalho, limite=args.limite, sem_fts=args.sem_fts,
+        )
+    print(json_texto(resultado), end="")
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="traducao", description=__doc__)
     comandos = parser.add_subparsers(dest="comando", required=True)
@@ -235,11 +252,28 @@ def main(argv=None):
     acao = vozes.add_subparsers(dest="acao", required=True).add_parser("verificar")
     _projeto(acao)
     acao.set_defaults(executar=_editorial)
+    memoria = comandos.add_parser("memoria", help="reconstrói ou consulta o índice local opcional")
+    acoes_memoria = memoria.add_subparsers(dest="acao", required=True)
+    atualizar = acoes_memoria.add_parser("atualizar")
+    buscar = acoes_memoria.add_parser("buscar")
+    for acao in (atualizar, buscar):
+        _projeto(acao)
+        acao.add_argument("--sem-fts", action="store_true", help="usa a alternativa de busca simples")
+        acao.set_defaults(executar=_memoria)
+    _modo_local(atualizar)
+    atualizar.add_argument("--reconstruir", action="store_true")
+    buscar.add_argument("consulta")
+    buscar.add_argument("--obra", required=True)
+    buscar.add_argument("--versao", required=True)
+    buscar.add_argument("--ate", required=True, help="última unidade que pode ser revelada")
+    buscar.add_argument("--incluir-futuro", action="store_true")
+    buscar.add_argument("--incluir-trabalho", action="store_true")
+    buscar.add_argument("--limite", type=int, default=10)
     args = parser.parse_args(argv)
     try:
         return args.executar(args)
     except (OSError, ValueError, KeyError, TypeError, AttributeError, BadZipFile, ParseError,
-            RuntimeError, ErroCompressao) as erro:
+            RuntimeError, ErroCompressao, sqlite3.Error) as erro:
         print(f"Erro: {erro}", file=sys.stderr)
         return 2
 

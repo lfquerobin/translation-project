@@ -1,0 +1,87 @@
+from copy import deepcopy
+from pathlib import Path
+import tempfile
+import unittest
+
+from src.translation_project.arquivos import json_texto, sha256_arquivo
+from src.translation_project.memoria import INDICE, atualizar, buscar
+from test_registro import projeto_revisado
+
+
+class MemoriaTest(unittest.TestCase):
+    def setUp(self):
+        pasta = tempfile.TemporaryDirectory(prefix="memória ")
+        self.addCleanup(pasta.cleanup)
+        self.raiz = Path(pasta.name)
+        self.dados, self.arquivo, _ = projeto_revisado(self.raiz)
+        self.dados.update(versao="E1", convencoes={"memoria": {"segmentos": "segmentos.json"}})
+        self.segmentos = []
+        for n in range(1, 5):
+            id_unidade = f"C0{n}"
+            arquivo = self.arquivo
+            if n > 1:
+                unidade = deepcopy(self.dados["unidades"][0])
+                arquivo = self.raiz / f"{id_unidade}.md"
+                arquivo.write_bytes(self.arquivo.read_bytes())
+                unidade.update(id=id_unidade, ordem=n, arquivo=arquivo.name, edicao="E2" if n == 4 else "E1")
+                for evento in unidade["historico"]:
+                    if evento["etapa"] == "formato":
+                        evento["arquivo_conferido"] = arquivo.name
+                self.dados["unidades"].append(unidade)
+            self.segmentos.append({
+                "id": f"S{n}", "unidade": id_unidade, "traducao": "Texto sintetico.",
+                "referencia": f"Parte {n}, edição sintética.", "hash_texto": sha256_arquivo(arquivo),
+            })
+        self.segmentos.append(dict(self.segmentos[0], id="revelacao", visivel_apos="C03"))
+        self.segmentos.append(dict(self.segmentos[0], id="trabalho", hash_texto=None))
+        self.salvar()
+
+    def salvar(self):
+        (self.raiz / "segmentos.json").write_text(
+            json_texto({"schema": 1, "segmentos": self.segmentos}), encoding="utf-8",
+        )
+
+    def busca(self, **opcoes):
+        parametros = {"obra": self.dados["obra"], "versao": "E1", "ate": "C01", **opcoes}
+        return buscar(self.dados, self.raiz, "sintetico", **parametros)["resultados"]
+
+    def test_recuperacao_respeita_limite_edicao_e_trabalho(self):
+        self.assertEqual(atualizar(self.dados, self.raiz)["segmentos_elegiveis"], 6)
+        self.assertFalse((self.raiz / INDICE).exists())
+        atualizar(self.dados, self.raiz, aplicar=True)
+        self.assertEqual({s["id"] for s in self.busca()}, {"S1"})
+        self.assertEqual({s["id"] for s in self.busca(trabalho=True)}, {"S1", "trabalho"})
+        self.assertEqual({s["id"] for s in self.busca(futuro=True)}, {"S1", "S2", "S3", "revelacao"})
+        with self.assertRaisesRegex(ValueError, "versão"):
+            self.busca(ate="C04")
+        self.assertTrue(self.busca()[0]["referencia"])
+
+    def test_indice_antigo_nunca_aprova_versao_modificada(self):
+        atualizar(self.dados, self.raiz, aplicar=True)
+        self.arquivo.write_bytes(b"Texto modificado.")
+        self.assertEqual(self.busca(), [])
+        resumo = atualizar(self.dados, self.raiz, aplicar=True)
+        self.assertGreater(resumo["atualizados"], 0)
+        self.assertEqual(self.busca(), [])
+
+    def test_hash_atual_sem_trecho_salvo_nao_e_aprovado(self):
+        self.segmentos[0]["traducao"] = "Trecho sintetico que não consta na unidade."
+        self.salvar()
+        atualizar(self.dados, self.raiz, aplicar=True)
+        self.assertEqual(self.busca(), [])
+        self.assertEqual({s["id"] for s in self.busca(trabalho=True)}, {"S1", "trabalho"})
+
+    def test_reconstruir_sem_fts_excluir_e_nao_escrever_na_busca(self):
+        resumo = atualizar(self.dados, self.raiz, aplicar=True, sem_fts=True)
+        self.assertFalse(resumo["fts"])
+        indice = self.raiz / INDICE
+        anteriores = {p: p.read_bytes() for p in self.raiz.rglob("*") if p.is_file()}
+        self.assertEqual({s["id"] for s in self.busca(sem_fts=True)}, {"S1"})
+        self.assertEqual(anteriores, {p: p.read_bytes() for p in self.raiz.rglob("*") if p.is_file()})
+        self.dados["convencoes"]["memoria"]["excluir_unidades"] = ["C01"]
+        self.segmentos.pop(1)
+        self.salvar()
+        resumo = atualizar(self.dados, self.raiz, aplicar=True, reconstruir=True)
+        self.assertEqual(resumo["removidos"], 4)
+        self.assertTrue(indice.exists())
+        self.assertEqual({s["id"] for s in self.busca(futuro=True)}, {"S3"})

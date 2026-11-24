@@ -11,3 +11,4 @@ dist/
 .vscode/
 .obsidian/workspace*.json
 .obsidian/cache/
+.traducao/
