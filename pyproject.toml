@@ -9,6 +9,9 @@ description = "Ferramentas editoriais para projetos de tradução literária"
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+validacao = ["jsonschema==4.25.1"]
+
 [project.scripts]
 traducao = "translation_project.__main__:main"
 

@@ -47,6 +47,8 @@ Para edições em EPUB, consulte o [guia de conversão para Markdown](traduzir-e
 
 O modelo inicial usa Markdown como registro de trabalho. Se o volume de capítulos ou o número de revisões justificar automação, escolha um registro estruturado como fonte de verdade e gere as vistas de acompanhamento e pendências a partir dele. O [guia de registro e verificador](registro-e-verificador.md) mostra a estrutura e as verificações sugeridas.
 
+Uma obra existente pode testar o fluxo com dados sintéticos ou com uma cópia local do registro. No caso de Re:Zero, mantenha o verificador e o schema próprios até existir um mapeamento conferido para unidades, ocorrências e evidência de fidelidade. Em uma light novel ilustrada, uma primeira adoção pode usar apenas o inventário e o verificador EPUB em um volume. Depois de conferir os resultados, decida se o acompanhamento daquela obra também deve usar o schema central.
+
 ## Conferência antes da primeira entrega
 
 - A edição e as fontes da unidade foram identificadas e registradas.

@@ -12,7 +12,7 @@
 | 5 · Glossário e vozes | Concluída | Esquemas opcionais, alertas contextuais e vistas integrados à CLI. |
 | 6 · Memória | Concluída | Schema e guia de segmentos, fluxo pela CLI e recuperação do índice ao mudar a disponibilidade de FTS5. |
 | 7 · Instruções e painel | Concluída | Matriz de leitura e retomada no guia central. Painel opcional com contagens por volume. |
-| 8 · CI e integração | Em andamento | Matriz Windows/Linux configurada. Faltam execução na matriz, validação formal de schemas e demonstração ponta a ponta. |
+| 8 · CI e integração | Concluída localmente | Suíte em quatro combinações de sistema e Python, validação de contratos e demonstração integrada. Workflow preparado para execução no GitHub. |
 
 ## Diagnóstico inicial
 
@@ -78,12 +78,35 @@
 - `convencoes.painel: true` habilita o painel Markdown. A geração usa a proteção das outras vistas, exibe numeradores, denominadores e itens inaplicáveis e conta ocorrências de imagens a partir de inventários disponíveis. Cobertura, revisão editorial e conferência técnica são apresentadas separadamente.
 - A suíte passou com 41 testes no Windows 3.14. Os dois casos novos cobrem projeto vazio, geração optativa e determinística, contagens por etapa e volume, inventário ausente, ocorrências repetidas e revisão desatualizada.
 
-## Retomada
+## Fase 8
 
-O trabalho desta sessão está em commits locais na `main` de `translation-project`. A base é `db32b1c`. As fases 0 a 5 correspondem, na ordem, a `42cdec6`, `2a3ea4d`, `d061fbf`, `7d6f3dd`, `dbb1315` e `9e5780a`. O commit seguinte contém a memória local e este ponto de retomada. O plano original segue como arquivo local e as configurações locais do Obsidian seguem fora dos commits. Nenhum repositório de obra foi alterado nesta sessão.
+- O workflow `.github/workflows/validacao.yml` executa a suíte, valida os contratos e links locais, testa a CLI instalada e verifica o diff. A dependência de JSON Schema é opcional para a ferramenta e instalada pelo CI. As fixtures da suíte são sintéticas.
+- `tests/test_fluxo.py` demonstra o caminho da inicialização até uma consulta de memória, passando por descoberta e confirmação EPUB, verificador legado, migração, evidências, vistas, painel e validação de entrega.
+- `python -B -m unittest discover -s tests -q` passou nas quatro combinações abaixo. O Linux foi executado no WSL com CPython isolado. A suíte também passou partindo de um arquivo Git extraído em uma pasta limpa no Windows 3.14.
 
-1. Reexecute `python -B -m unittest discover -s tests -v` e `git diff --check`. Confirme o estado com `git status --short --branch`.
-4. Conclua a fase 8. Valide os schemas e links de documentação, teste a instalação atual a partir de outro diretório e rode a matriz Windows/Linux em Python 3.10 e 3.14. A wheel já foi testada no Windows na fase 4. Nesta sessão, o WSL respondeu com acesso negado e a matriz remota não foi executada. Demonstre o fluxo sintético de inicialização, importação, verificação, migração, geração de vistas e busca.
+| Ambiente | Python | Testes |
+| --- | --- | --- |
+| Windows | 3.10.22 | 42 passaram |
+| Windows | 3.14.7 | 42 passaram |
+| Linux no WSL | 3.10.22 | 42 passaram |
+| Linux no WSL | 3.14.10 | 42 passaram |
+
+- `python -B tools/validar_repositorio.py` conferiu cinco schemas, seus exemplos e 44 links locais em 14 documentos. A wheel construída no Windows foi instalada num ambiente virtual. `python -B tools/validar_repositorio.py --instalacao` confirmou o comando e os modelos fora do checkout.
+- A validação da matriz ocorreu localmente. A execução nos runners do GitHub Actions começa após publicação autorizada.
+
+## Histórico e verificação
+
+A base é `db32b1c`. As fases 0 a 5 correspondem, na ordem, a `42cdec6`, `2a3ea4d`, `d061fbf`, `7d6f3dd`, `dbb1315` e `9e5780a`. A memória local foi iniciada em `174a82d` e concluída em `149d17c`. O painel e a matriz de leitura estão em `4111341`. O commit seguinte contém o fluxo integrado, a validação da instalação e a versão final do workflow.
+
+Para repetir a validação local:
+
+```sh
+python -B -m unittest discover -s tests -v
+python -m pip install ".[validacao]"
+python -B tools/validar_repositorio.py
+python -B tools/validar_repositorio.py --instalacao
+git diff --check
+```
 
 Comandos para testar a memória depois de preparar uma obra sintética com o registro de segmentos:
 

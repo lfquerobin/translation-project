@@ -23,6 +23,16 @@ python -B -m unittest discover -s tests -v
 
 Os testes usam EPUBs sintéticos gerados em pastas temporárias.
 
+Para conferir os schemas, os links da documentação e a instalação, execute:
+
+```sh
+python -m pip install ".[validacao]"
+python -B tools/validar_repositorio.py
+python -B tools/validar_repositorio.py --instalacao
+```
+
+O teste de instalação procura `traducao` no PATH. A demonstração integrada usa uma obra sintética e roda com `python -B -m unittest discover -s tests -p test_fluxo.py -v`. O teste cobre inicialização, importação EPUB, migração, validação, vistas e consulta à memória.
+
 ## Ferramentas locais
 
 Use `python -m pip install .` para instalar o comando `traducao` em um ambiente Python 3.10 ou mais recente. Sem instalação, execute `python -B -m src.translation_project` na raiz deste repositório. Depois de instalar, execute `traducao` de qualquer diretório e indique a obra com `--projeto`.
