@@ -8,6 +8,20 @@ Use este fluxo quando a edição de trabalho estiver em EPUB e a entrega for em 
 2. Antes de traduzir, inventarie o volume. Inclua capa, introdução, capítulos, epílogo, ilustrações, notas, créditos e outros extras que existirem na edição. Identifique cada unidade como narrativa, extra ou material editorial para acompanhar a cobertura de cada tipo.
 3. Use o sumário para identificar as unidades e a ordem de leitura do EPUB para localizar as partes de cada unidade. Confira também páginas que aparecem na sequência de leitura sem entrada no sumário.
 
+## Registrar a inspeção de cada imagem
+
+Use o [modelo de inventário em JSON](../modelos/epub/inventario-epub.json) na pasta do volume. Registre cada ocorrência de imagem na unidade em que aparece, na ordem de leitura, com o caminho no EPUB, o caminho na edição em Markdown e o resultado da inspeção. Uma arte repetida em outra passagem ganha outra entrada.
+
+| Estado | Quando usar |
+| --- | --- |
+| `sem_texto` | A imagem foi inspecionada e não contém texto que peça tradução. Uma marca preservada pode ser anotada nesse estado. |
+| `traduzido` | Todo o texto traduzível foi incluído logo abaixo da imagem. |
+| `parcial` | Parte do texto foi traduzida. Descreva em `nota` o que ficou pendente. |
+| `ilegivel` | O texto não pôde ser lido. Identifique em `nota` a área afetada. |
+| `pendente` | A inspeção ainda não foi feita. |
+
+Em `blocos_traducao`, conte os blocos de Markdown separados por linhas em branco que pertencem à tradução da imagem. Preencha esse campo para `traduzido` e `parcial`. Inclua títulos, créditos e legendas quando fizerem parte da tradução. No acompanhamento do volume, aponte para o inventário e dê o total por estado.
+
 ## Montar a edição em Markdown
 
 - Reúna num mesmo arquivo todas as partes de um capítulo dividido entre arquivos internos do EPUB. Preserve a ordem das passagens, as quebras de cena, as notas e os destaques pertinentes. Mantenha extras independentes na posição que ocupam no volume.
@@ -17,6 +31,7 @@ Use este fluxo quando a edição de trabalho estiver em EPUB e a entrega for em 
 
 ## Acompanhar e conferir a entrega
 
+- Siga o [fluxo de aprovação por capítulo](../AGENTS.md#traduzir-e-aprovar-por-capítulo) para cada unidade, incluindo extras e textos das imagens. Compare o capítulo completo com a edição de trabalho e faça a releitura em português em outra passada. Registre ambas por unidade antes de considerar o volume revisado.
 - Registre a cobertura da tradução separadamente do cotejo com cada fonte e da releitura em português. Identifique a primeira passagem automatizada como versão de trabalho. Se o cotejo for parcial, indique até onde foi feito e o que falta conferir.
 - Compare o inventário e a sequência de leitura do EPUB com os arquivos Markdown. Confira começos e fins de capítulos, continuações, separadores, notas e extras. Compare as imagens com as passagens que as antecedem e sucedem para verificar a posição.
-- Abra os links do sumário e confira se cada referência de imagem aponta para o arquivo correto. Verifique se a tradução de cada imagem com texto aparece logo abaixo dela. Use o [guia de registro e verificador](registro-e-verificador.md) para automatizar as verificações de estrutura que se repetirem.
+- Abra os links do sumário e confira se cada referência de imagem aponta para o arquivo correto. Verifique se a tradução de cada imagem com texto aparece logo abaixo dela. Execute o [verificador de EPUB e Markdown](registro-e-verificador.md#verificador-de-epub-e-markdown) para conferir o inventário, a sequência e os links.

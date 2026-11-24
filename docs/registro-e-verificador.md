@@ -4,6 +4,8 @@ Use esta estrutura como referência ao automatizar um projeto. O [modelo inicial
 
 ## Registro da obra
 
+O esquema abaixo serve como ponto de partida. Re:Zero usa um esquema próprio. Os campos `capitulos` e `ocorrencias_anonimas` correspondem às unidades e às ocorrências de falante da web novel. O campo único `revisoes.fidelidade` registra o cotejo da obra de acordo com seu escopo documentado. Se houver migração, separe os cotejos por fonte somente quando o histórico comprovar o alcance de cada um.
+
 Escolha um esquema e documente a versão. Um `projeto.json` inicial pode ser:
 
 ```json
@@ -62,3 +64,23 @@ Se criar `tools/verificar_projeto.py`, siga as convenções documentadas pela ob
 Mantenha a conferência comum em modo de leitura. Separe a opção de regenerar vistas e limite as escritas aos arquivos gerados. Documente os comandos e a distinção entre erro, aviso e pendência editorial. Se o projeto não usar determinado cabeçalho, marcador ou separador, adapte a validação à convenção local.
 
 Teste com exemplos artificiais de arquivos válidos, registros incompletos, caminhos divergentes, falas repetidas e vistas desatualizadas. Verifique também que a regeneração preserva os textos e que um registro vazio é tratado como um projeto em preparação. A leitura das fontes e a revisão em português continuam a cargo da revisão editorial.
+
+
+## Verificador de EPUB e Markdown
+
+Preencha o [inventário do volume](../modelos/epub/inventario-epub.json) ao lado do sumário em Markdown.
+
+- Em `sumario`, informe o caminho do sumário em relação ao inventário. Liste as `unidades` na ordem de leitura, com o caminho de cada `markdown` relativo ao inventário.
+- Em `paginas_epub`, liste os caminhos internos completos, incluindo continuações e páginas de imagem. Use a ordem do `spine` do EPUB. Declare em `paginas_de_navegacao` as páginas de índice do `spine` representadas pelo sumário Markdown.
+- Em `blocos_iniciais`, informe quantos blocos Markdown separados por linhas em branco precedem o texto traduzido, incluindo o título e o cabeçalho editorial. O padrão é zero. Para as imagens, siga o [registro de inspeção](traduzir-epub.md#registrar-a-inspeção-de-cada-imagem).
+- Após conferir o texto de uma divisão legítima, registre-a em `divisoes_de_paragrafo` na unidade. Por exemplo, `{"9": 2}` indica que o nono parágrafo da fonte corresponde a dois blocos em português. A numeração começa em 1, segue todas as continuações na ordem do EPUB e conta apenas os parágrafos com texto. O verificador usa a divisão para conferir a posição das imagens e medir o tamanho conjunto dos blocos.
+
+Execute com Python 3.10 ou mais recente, da raiz do projeto principal.
+
+```sh
+python tools/verificar_epub.py "caminho/volume.epub" "caminho/Volume 02/inventario-epub.json"
+```
+
+O verificador compara o inventário com o `spine` e os sumários disponíveis, verifica os destinos dos links Markdown locais em linha e compara a ordem das imagens de cada unidade. Para a comparação de texto, conta parágrafos XHTML e blocos Markdown, descontando o cabeçalho e as traduções das imagens registradas. Quando os totais coincidem, compara a posição das imagens entre blocos e sinaliza traduções com menos de 60% do número de palavras de um parágrafo de pelo menos 20 palavras na fonte. Também aponta caracteres suspeitos e inspeções pendentes.
+
+Execute-o em modo de leitura e use a saída para localizar os trechos a cotejar. Uma mudança legítima na divisão de parágrafos pode gerar aviso. A inspeção visual confirma o conteúdo das imagens e a comparação editorial confirma o sentido e a cobertura das passagens. Use `--estrito` na conferência da entrega para retornar 1 também se houver avisos. A saída é 0 quando os critérios do modo escolhido forem atendidos e 2 se o EPUB ou o inventário não puder ser lido.

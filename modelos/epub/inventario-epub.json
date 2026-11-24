@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "sumario": "000. Sumário.md",
+  "paginas_de_navegacao": ["OEBPS/Text/toc.xhtml"],
+  "unidades": [
+    {
+      "markdown": "001. Capítulo.md",
+      "paginas_epub": [
+        "OEBPS/Text/capitulo.xhtml",
+        "OEBPS/Text/ilustracao.xhtml",
+        "OEBPS/Text/capitulo-continuacao.xhtml"
+      ],
+      "blocos_iniciais": 0,
+      "imagens": [
+        {
+          "epub": "OEBPS/Images/Ilustracao.jpg",
+          "markdown": "Imagens/Ilustracao.jpg",
+          "estado": "traduzido",
+          "blocos_traducao": 1
+        }
+      ]
+    }
+  ]
+}

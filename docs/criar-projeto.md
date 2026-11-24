@@ -50,5 +50,5 @@ O modelo inicial usa Markdown como registro de trabalho. Se o volume de capítul
 - A edição e as fontes da unidade foram identificadas e registradas.
 - As convenções locais estão concretas o suficiente para salvar e conferir a unidade.
 - O texto integral foi salvo e seu caminho está no acompanhamento.
-- As revisões e pendências refletem o trabalho real. Se algum cotejo ficou pendente, a entrega identifica a fonte ou o trecho indisponível.
+- Cada capítulo ou extra que será entregue como revisado tem cobertura integral, cotejo com a edição de trabalho, releitura do português e conferência da versão salva registrados. Se o cotejo com o original ficou pendente ou parcial, a entrega identifica a fonte ou o trecho indisponível.
 - Os links locais abrem. Se houver vistas geradas, elas conferem com o registro. A sincronização segue o fluxo autorizado para o repositório da obra.

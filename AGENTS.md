@@ -28,15 +28,23 @@ Para obras em EPUB com entrega em Markdown, siga o [guia de preparação do volu
 - No registro da obra, diferencie o anonimato intencional de uma atribuição ainda incerta. Para uma dúvida editorial, anote o trecho exato, o original quando disponível, os candidatos, o motivo, a fonte e o que falta confirmar. Use no texto a marcação definida pela obra e mantenha as hipóteses no registro.
 - Preserve e traduza as notas da fonte. Registre observações novas fora da narrativa, nos arquivos editoriais do projeto, salvo instrução do usuário.
 
-## Revisar em duas etapas
+## Traduzir e aprovar por capítulo
 
-1. **Fidelidade.** Coteje o texto completo com as fontes disponíveis. Use começos e fins de cenas, separadores e notas para conferir ordem e cobertura. Procure omissões, repetições acidentais e truncamentos. A contagem de parágrafos ajuda a localizar trechos; a estrutura de cada idioma pode exigir divisões diferentes.
-2. **Naturalidade.** Leia o português continuamente, com a fonte fechada, verificando ritmo, transições, clareza, registro e voz. Depois, coteje as passagens reformuladas para confirmar o sentido. Dê atenção a falas curtas, gritos, interrupções e mudanças de falante.
+Trate cada capítulo como uma unidade de tradução e aprovação. Prólogos, epílogos e extras passam pelo mesmo fluxo, conforme o conteúdo e a fonte de cada um. Se um capítulo estiver dividido entre arquivos do EPUB, reúna todas as partes antes do cotejo. Uma primeira passagem automatizada em lote pode servir de rascunho. Retome cada capítulo individualmente para traduzir ou revisar e registre o resultado por unidade.
+
+Desde a primeira redação editorial, trabalhe cada unidade para entrega em versão final, com atenção à precisão do sentido, à voz, ao ritmo e à naturalidade. Reserve a indicação de versão final para a unidade que concluiu todas as etapas pela edição de trabalho. Registre separadamente o alcance do cotejo com o original.
+
+1. **Preparação e tradução.** Localize o capítulo inteiro na edição de trabalho, incluindo as continuações, notas, imagens e separadores. Leia a fonte e produza uma versão em português que cubra toda a unidade.
+2. **Fidelidade e cobertura.** Faça uma passada separada pela fonte, do início ao fim do capítulo, comparando parágrafos, falas, notas e quebras de cena. Procure saltos de parágrafo, frases cortadas, duplicações e alterações de sentido. Confira nomes, tratamentos, negações, números, agentes e ordem dos acontecimentos. Se uma passagem foi dividida ou reunida no português, confira todas as frases correspondentes. Registre separadamente o alcance do cotejo com cada fonte.
+3. **Naturalidade.** Leia o português continuamente, com a fonte fechada, verificando ritmo, transições, clareza, registro e voz. Depois, coteje as passagens reformuladas para confirmar o sentido. Dê atenção a falas curtas, gritos, interrupções e mudanças de falante.
+4. **Conferência da versão salva.** Revise cabeçalho, formatação, nomes, diálogos, notas e posição das imagens. Execute o verificador, quando houver, e investigue cada aviso da unidade. Registre a evidência de diferenças legítimas, como dividir a fala e a narração em parágrafos separados.
 
 Antes de corrigir uma passagem, confira a redação vigente e localize a evidência na fonte ou na cena. Diferencie um problema demonstrável de uma alternativa plausível. Edite apenas o necessário e confira a passagem inteira após o ajuste. Em revisão em lote, confirme que o texto ainda é o mesmo que foi analisado antes de aplicar a correção.
 
 ## Registrar e entregar
 
+- Marque uma unidade como revisada pela edição de trabalho depois de conferir sua cobertura integral, concluir o cotejo com essa edição, reler o português e registrar a conferência da versão salva. Indique separadamente o que foi cotejado com o original e o que segue pendente. Quando uma dúvida puder alterar o sentido ou a cobertura, mantenha a etapa correspondente aberta.
+- Entregue um volume como revisado somente depois de conferir no acompanhamento todas as unidades do volume e verificar o conjunto salvo, incluindo sumário, imagens e extras. Se houver unidades em versão de trabalho, identifique o volume e essas unidades como versão de trabalho.
 - Registre decisões reutilizáveis com o termo no original, a forma adotada, o contexto, a versão, a unidade da obra e uma referência verificável. Distinga erro da fonte intermediária confirmado pelo original, adaptação deliberada e interpretação incerta. Ao mudar uma decisão do glossário, localize as passagens afetadas e confira o impacto no contexto.
 - Registre a cobertura da tradução, o cotejo com o original, o cotejo com a intermediária quando houver e a releitura em português como etapas distintas. Identifique a primeira passagem automatizada como versão de trabalho. Informe o trecho conferido quando o cotejo for parcial.
 - Registre somente revisões realizadas, com data e escopo. Preserve o histórico ao registrar trabalho anterior. Coteje os trechos alterados após mudanças de conteúdo; alterações extensas pedem nova revisão integral. Após mudar a apresentação, verifique se a releitura contínua da versão final ainda está pendente.
