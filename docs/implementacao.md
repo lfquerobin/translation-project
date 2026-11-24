@@ -8,7 +8,7 @@
 | 1 · EPUB | Concluída | Interface legada, diagnósticos JSON, limites ZIP/XML e alinhamento v2 exercitados em EPUBs sintéticos. |
 | 2 · Registro e revisões | Concluída | Esquemas centrais, status derivado, invalidações e migração central v1 exercitados com registros sintéticos. |
 | 3 · Importação | Concluída | Descoberta, confirmação, reexecução e confronto de edições validados com EPUB sintético. |
-| 4 · CLI e vistas | Pendente | Depende do contrato do registro e da importação. |
+| 4 · CLI e vistas | Concluída | Wheel e comando instalado conferidos a partir de outro diretório. Vistas e verificações cobertas por testes. |
 | 5 · Glossário e vozes | Pendente | Depende do registro e das vistas. |
 | 6 · Memória | Pendente | Depende da estabilização dos registros. |
 | 7 · Instruções e painel | Pendente | Preservar o guia editorial central. |
@@ -49,3 +49,10 @@
 - `importar` e `inventario gerar` têm dry-run por padrão. A opção de escrita pode criar proposta, inventário v2, imagens e esqueleto vazio de tradução. A criação é exclusiva por arquivo, com conferência prévia de colisões e reaproveitamento de bytes idênticos. Se houver falha de disco durante a operação, a reexecução reaproveita o que foi gravado. A gravação do inventário vem por último.
 - `python -B -m unittest discover -s tests -q` passou com 25 testes. Os novos testes cobrem repetição de páginas e imagens, capa, extra não linear, navegação, reexecução, preservação de edição manual, diagnóstico de registros incompletos e comparação de edições. A verificação do esqueleto confirma que ele permanece pendente de tradução e alinhamento.
 - `docs/traduzir-epub.md` documenta confirmação e reexecução. O inventário registra inspeções pendentes e nunca preenche texto traduzido ou atribui equivalência editorial.
+
+## Fase 4
+
+- `pyproject.toml` empacota os modelos e disponibiliza `traducao`. `python -B -m src.translation_project` continua disponível sem instalação ou rede. `init` é local e preserva arquivos existentes. `verificar` confere convenções configuráveis, links, cabeçalhos, datas, rótulos, multiplicidade de falas, arquivos órfãos e vistas desatualizadas.
+- `vistas.py` protege as vistas editadas à mão com identificação e hash do conteúdo gerado. As substituições são atômicas por arquivo. A validação de entrega combina revisão registrada, conferência de conjunto e EPUB quando configurado.
+- A suíte passou com 29 testes. O teste inicial da wheel instalada com `--target` não encontrou os modelos porque os caminhos no RECORD apontavam para fora do diretório alvo. A localização inclui agora o diretório de dados da instalação por alvo. Depois de reconstruir e instalar a wheel, `traducao init --estruturado --dry-run` funcionou de outro diretório.
+- Comandos e convenções foram atualizados nos guias existentes. Projetos sem registro estruturado mantêm os modelos Markdown e suas ferramentas locais.

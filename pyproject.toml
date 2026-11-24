@@ -1,9 +1,22 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "translation-project"
 version = "0.1.0"
 description = "Ferramentas editoriais para projetos de tradução literária"
 requires-python = ">=3.10"
 dependencies = []
+
+[project.scripts]
+traducao = "translation_project.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.data-files]
+"share/translation-project/modelos/projeto" = ["modelos/projeto/*.md"]
 
 # unittest não precisa de dependências nem de configuração própria.
 # python -B -m unittest discover -s tests -v

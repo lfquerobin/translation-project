@@ -9,6 +9,8 @@ Use um repositório próprio para cada obra ou versão em trabalho. O [guia edit
 3. No `AGENTS.md` local, mantenha o link para o guia geral e escreva as convenções da obra. Registre a divisão dos textos, os nomes dos arquivos, o cabeçalho, as marcas de diálogo e a forma de indicar status e pendências.
 4. Adicione a obra ao [índice do projeto principal](../projetos/README.md), com o link do repositório, a versão quando conhecida e a situação atual.
 
+O comando local `traducao init --projeto "/caminho/obra" --dry-run` mostra quais modelos seriam copiados. Use `--aplicar` para criá-los, preservando arquivos existentes. Para começar com o registro central e duas vistas geradas, acrescente `--estruturado`. Essa escolha é opcional e o comando não configura remoto.
+
 ## 2. Arquivos iniciais
 
 | Arquivo | Conteúdo mínimo | Quando atualizar |

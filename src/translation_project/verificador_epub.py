@@ -213,6 +213,8 @@ def verificar(epub, inventario, volume):
                    "Os links para unidades diferem do inventário em cobertura ou ordem.")
 
     edicao = ler_edicao(epub)
+    if "sha256_epub" in inventario and inventario["sha256_epub"] != epub.digest():
+        achado("EPUB_EDICAO_DIVERGENTE", "erro", "EPUB", "O hash da edição difere do inventário.")
     ordem_epub = [pagina.item.caminho for pagina in edicao.spine]
     for codigo, mensagem in edicao.avisos:
         achado(codigo, "aviso", "EPUB", mensagem)

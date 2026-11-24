@@ -22,3 +22,16 @@ python -B -m unittest discover -s tests -v
 ```
 
 Os testes usam EPUBs sintéticos gerados em pastas temporárias.
+
+## Ferramentas locais
+
+Use `python -m pip install .` para instalar o comando `traducao` em um ambiente Python 3.10 ou mais recente. Sem instalação, execute `python -B -m src.translation_project` na raiz deste repositório. Depois de instalar, execute `traducao` de qualquer diretório e indique a obra com `--projeto`.
+
+```sh
+traducao init --projeto "/caminho/obra" --estruturado --dry-run
+traducao verificar --projeto "/caminho/obra" --estrito
+traducao status --projeto "/caminho/obra" --json
+traducao sincronizar --projeto "/caminho/obra" --conferir
+```
+
+Consulte os guias de [criação de projeto](docs/criar-projeto.md), [importação de EPUB](docs/traduzir-epub.md) e [registro, migração e verificação](docs/registro-e-verificador.md).

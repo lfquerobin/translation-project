@@ -1,6 +1,7 @@
 """Entrada da linha de comando das ferramentas de tradução."""
 
 import argparse
+from dataclasses import asdict
 from pathlib import Path
 import sys
 from xml.etree.ElementTree import ParseError
@@ -10,8 +11,11 @@ from zlib import error as ErroCompressao
 from .arquivos import json_texto, ler_json
 from .epub import Pacote, caminho_registro
 from .importacao import confirmar, conferir_destinos, descobrir, publicar_importacao
+from .inicializacao import iniciar
 from .migracao import invalidar, migrar, salvar_copia
 from .registro import abrir_projeto, calcular_status
+from .validacao import validar_entrega, verificar_projeto
+from .vistas import aplicar_vistas, gerar_vistas, inspecionar_vistas
 
 
 def _projeto(comando):
@@ -116,6 +120,47 @@ def _argumentos_importar(comando, *, projeto_obrigatorio):
     comando.set_defaults(executar=_importar)
 
 
+def _iniciar(args):
+    relatorio = iniciar(args.projeto, estruturado=args.estruturado, aplicar=args.aplicar)
+    print(json_texto(relatorio), end="")
+    return 0
+
+
+def _sincronizar(args):
+    dados, raiz = abrir_projeto(args.projeto)
+    geradas = gerar_vistas(dados, calcular_status(dados, raiz))
+    plano = inspecionar_vistas(raiz, geradas)
+    if args.aplicar:
+        aplicar_vistas(geradas, plano)
+    estados = {nome: estado for nome, (_, estado, _) in plano.items()}
+    print(json_texto({"schema": 1, "aplicado": args.aplicar, "vistas": estados}), end="")
+    return int(args.conferir and any(estado != "atual" for estado in estados.values()))
+
+
+def _validar(args):
+    dados, raiz = abrir_projeto(args.projeto)
+    entrega = args.comando == "validar-entrega"
+    if entrega:
+        status, achados = validar_entrega(dados, raiz, args.volume)
+    else:
+        status, achados = verificar_projeto(dados, raiz, unidade=args.unidade, conferir_vistas=args.conferir_vistas)
+    if args.json:
+        print(json_texto({"schema": 1, "status": status, "diagnosticos": [asdict(item) for item in achados]}), end="")
+    else:
+        for item in achados:
+            local = f"{item.caminho}:{item.localizacao}" if item.localizacao else item.caminho
+            print(f"{item.gravidade.upper()} {item.codigo} {local} · {item.mensagem}")
+        print(f"{len(achados)} diagnósticos. Confira as etapas editoriais com o comando status.")
+    return int(bool(achados) if entrega or args.estrito else any(item.gravidade == "erro" for item in achados))
+
+
+def _modo_local(comando):
+    modo = comando.add_mutually_exclusive_group()
+    modo.add_argument("--dry-run", action="store_true", help="mostra resultados sem gravar (padrão)")
+    modo.add_argument("--aplicar", action="store_true", help="grava os artefatos locais")
+    return modo
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="traducao", description=__doc__)
     comandos = parser.add_subparsers(dest="comando", required=True)
@@ -136,6 +181,27 @@ def main(argv=None):
     acoes = inventario.add_subparsers(dest="acao", required=True)
     gerar = acoes.add_parser("gerar", help="descobre páginas, recursos e agrupamentos")
     _argumentos_importar(gerar, projeto_obrigatorio=False)
+    init = comandos.add_parser("init", help="copia modelos para um projeto local")
+    _projeto(init)
+    _modo_local(init)
+    init.add_argument("--estruturado", action="store_true", help="cria um registro central vazio e vistas iniciais")
+    init.set_defaults(executar=_iniciar)
+    sincronizar = comandos.add_parser("sincronizar", help="compara ou regenera as vistas locais")
+    _projeto(sincronizar)
+    _modo_local(sincronizar).add_argument("--conferir", action="store_true", help="falha se alguma vista divergir")
+    sincronizar.set_defaults(executar=_sincronizar)
+    verificar = comandos.add_parser("verificar", help="confere a estrutura do projeto")
+    _projeto(verificar)
+    verificar.add_argument("--unidade", help="ID da unidade")
+    verificar.add_argument("--json", action="store_true")
+    verificar.add_argument("--estrito", action="store_true")
+    verificar.add_argument("--conferir-vistas", action="store_true")
+    verificar.set_defaults(executar=_validar)
+    entrega = comandos.add_parser("validar-entrega", help="confere revisão registrada e estrutura do volume")
+    _projeto(entrega)
+    entrega.add_argument("--volume", required=True, help="ID do volume")
+    entrega.add_argument("--json", action="store_true")
+    entrega.set_defaults(executar=_validar)
     args = parser.parse_args(argv)
     try:
         return args.executar(args)

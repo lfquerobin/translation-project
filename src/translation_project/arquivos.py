@@ -49,3 +49,20 @@ def criar_arquivo(destino, conteudo):
     finally:
         if temporario is not None:
             temporario.unlink(missing_ok=True)
+
+
+def substituir_arquivo(destino, conteudo, anterior):
+    """Grava a vista inteira e verifica o conteúdo anterior antes da substituição."""
+    temporario = None
+    try:
+        with NamedTemporaryFile(dir=destino.parent, delete=False) as arquivo:
+            temporario = Path(arquivo.name)
+            arquivo.write(conteudo)
+            arquivo.flush()
+            os.fsync(arquivo.fileno())
+        if destino.is_symlink() or destino.read_bytes() != anterior:
+            raise ValueError(f"O arquivo mudou durante a operação: {destino}")
+        temporario.replace(destino)
+    finally:
+        if temporario is not None:
+            temporario.unlink(missing_ok=True)

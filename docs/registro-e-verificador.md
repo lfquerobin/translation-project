@@ -88,6 +88,24 @@ Se criar `tools/verificar_projeto.py`, siga as convenções documentadas pela ob
 
 Mantenha a conferência comum em modo de leitura. Separe a opção de regenerar vistas e limite as escritas aos arquivos gerados. Documente os comandos e a distinção entre erro, aviso e pendência editorial. Se o projeto não usar determinado cabeçalho, marcador ou separador, adapte a validação à convenção local.
 
+### Verificação geral e vistas locais
+
+```sh
+traducao verificar --projeto "/caminho/obra" --unidade V01-C01 --estrito --json
+traducao sincronizar --projeto "/caminho/obra" --dry-run
+traducao sincronizar --projeto "/caminho/obra" --conferir
+traducao sincronizar --projeto "/caminho/obra" --aplicar
+traducao validar-entrega --projeto "/caminho/obra" --volume V01
+```
+
+`verificar` confere a estrutura da obra e os vínculos do registro central. Configure `convencoes.cabecalhos` com os nomes de campos exigidos. Um campo pode ser um texto ou um objeto com `nome` e `tipo` (`texto`, `data` ou `link`). Declare `pastas_texto` para localizar arquivos Markdown órfãos. A comparação de ocorrências de fala é opcional e usa `convencoes.falas` com os delimitadores `abertura` e `fechamento`, `rotulos` conhecidos e `rotulo_anonimo` quando usado. O registro associa uma ocorrência por repetição e guarda a identificação incerta separada do anonimato intencional.
+
+`sincronizar` gera vistas locais de `projeto.json`. A conferência sinaliza divergências sem gravar. O comando de escrita preserva arquivos manuais e interrompe a geração se encontrar anotações ainda não migradas. Após migrá-las, arquive a vista manual para liberar seu nome à vista gerada. Defina `convencoes.vistas: true` ou use `verificar --conferir-vistas` para incluir as vistas na validação geral.
+
+`validar-entrega` usa a revisão registrada de todas as unidades e os arquivos de conjunto do volume. Se o volume declarar `epub` e `inventario` com caminhos dentro da obra, o comando também confere a estrutura do EPUB e do Markdown. A edição original pendente aparece no status mesmo quando a entrega pela edição de trabalho estiver apta.
+
+O resultado é 0 se o modo escolhido passar, 1 se houver divergência ou pendência bloqueante para aquele modo e 2 para uso ou dados inválidos. Em modo estrito, avisos e pendências também falham. `--json` retorna um objeto versionado com códigos de diagnóstico.
+
 Teste com exemplos artificiais de arquivos válidos, registros incompletos, caminhos divergentes, falas repetidas e vistas desatualizadas. Verifique também que a regeneração preserva os textos e que um registro vazio é tratado como um projeto em preparação. A leitura das fontes e a revisão em português continuam a cargo da revisão editorial.
 
 
