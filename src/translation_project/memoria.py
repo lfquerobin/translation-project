@@ -117,7 +117,25 @@ def _conexao(caminho, *, leitura=False):
     return closing(conexao)
 
 
-def _preparar(db, sem_fts):
+def _tem_tabela(db, nome):
+    return db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (nome,)).fetchone() is not None
+
+
+def _fts_pendente(db):
+    return _tem_tabela(db, "estado_fts") and db.execute("SELECT 1 FROM estado_fts").fetchone() is not None
+
+
+def _executar_fts(db, sql):
+    try:
+        db.execute(sql)
+    except sqlite3.OperationalError as erro:
+        if str(erro) != "no such module: fts5":
+            raise
+        return False
+    return True
+
+
+def _preparar(db):
     versao = db.execute("PRAGMA user_version").fetchone()[0]
     if versao == 0 and not db.execute("SELECT 1 FROM sqlite_master WHERE type='table'").fetchone():
         db.execute("""CREATE TABLE segmentos(
@@ -127,16 +145,21 @@ def _preparar(db, sem_fts):
         db.execute(f"PRAGMA user_version={VERSAO}")
     elif versao != VERSAO:
         raise ValueError("O arquivo existente não é um índice de memória compatível.")
-    fts = bool(db.execute("SELECT 1 FROM sqlite_master WHERE name='busca_fts'").fetchone())
-    if sem_fts or fts:
-        return fts, False
-    try:
-        db.execute("CREATE VIRTUAL TABLE busca_fts USING fts5(id UNINDEXED, busca, tokenize='unicode61 remove_diacritics 0')")
-    except sqlite3.OperationalError as erro:
-        if "no such module" not in str(erro):
-            raise
+    db.execute("CREATE TABLE IF NOT EXISTS estado_fts (pendente INTEGER PRIMARY KEY)")
+
+
+def _preparar_fts(db, habilitado):
+    existe = _tem_tabela(db, "busca_fts")
+    if not habilitado:
         return False, False
-    return True, True
+    if not existe:
+        criado = _executar_fts(
+            db, "CREATE VIRTUAL TABLE busca_fts USING fts5(id UNINDEXED, busca, tokenize='unicode61 remove_diacritics 0')",
+        )
+        return criado, criado
+    if not _executar_fts(db, "SELECT rowid FROM busca_fts LIMIT 0"):
+        return False, False
+    return True, _fts_pendente(db)
 
 
 def atualizar(dados, raiz, *, aplicar=False, reconstruir=False, sem_fts=False):
@@ -147,11 +170,14 @@ def atualizar(dados, raiz, *, aplicar=False, reconstruir=False, sem_fts=False):
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with _conexao(caminho) as db, db:
         db.execute("BEGIN IMMEDIATE")
-        fts, fts_novo = _preparar(db, sem_fts)
+        _preparar(db)
+        fts, repovoar = _preparar_fts(db, not sem_fts)
         existentes = dict(db.execute("SELECT id, digest FROM segmentos"))
         remover = set(existentes) - entradas.keys()
         mudar = {id for id, (_, _, digest) in entradas.items() if reconstruir or existentes.get(id) != digest}
-        if fts:
+        if fts and repovoar:
+            db.execute("DELETE FROM busca_fts")
+        elif fts:
             for id in sorted(remover | mudar):
                 db.execute("DELETE FROM busca_fts WHERE id=?", (id,))
         db.executemany("DELETE FROM segmentos WHERE id=?", [(id,) for id in sorted(remover)])
@@ -161,8 +187,11 @@ def atualizar(dados, raiz, *, aplicar=False, reconstruir=False, sem_fts=False):
                 id, entrada["obra"], entrada["versao"], entrada["ordem_visivel"], entrada["estado"], busca, digest,
             ))
         if fts:
-            ids_fts = entradas if fts_novo else mudar
+            ids_fts = entradas if repovoar else mudar
             db.executemany("INSERT INTO busca_fts VALUES(?, ?)", [(id, entradas[id][1]) for id in sorted(ids_fts)])
+            db.execute("DELETE FROM estado_fts")
+        elif (mudar or remover) and _tem_tabela(db, "busca_fts"):
+            db.execute("INSERT OR IGNORE INTO estado_fts VALUES(1)")
     return {"aplicado": True, "segmentos_elegiveis": len(entradas), "atualizados": len(mudar),
             "removidos": len(remover), "fts": fts and not sem_fts, "indice": INDICE}
 
@@ -186,7 +215,8 @@ def buscar(dados, raiz, consulta, *, obra, versao, ate, futuro=False, trabalho=F
     with _conexao(caminho, leitura=True) as db:
         if db.execute("PRAGMA user_version").fetchone()[0] != VERSAO:
             raise ValueError("O índice tem um formato incompatível.")
-        fts = not sem_fts and db.execute("SELECT 1 FROM sqlite_master WHERE name='busca_fts'").fetchone()
+        fts = (not sem_fts and _tem_tabela(db, "busca_fts") and not _fts_pendente(db)
+               and _executar_fts(db, "SELECT rowid FROM busca_fts LIMIT 0"))
         encontrados = []
         if fts:
             expressao = " AND ".join(f'"{t}"' for t in termos)

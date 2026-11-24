@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Segmentos de memória v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "segmentos"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "segmentos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "unidade",
+          "traducao",
+          "referencia"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unidade": {
+            "type": "string",
+            "minLength": 1
+          },
+          "traducao": {
+            "type": "string",
+            "minLength": 1
+          },
+          "referencia": {
+            "type": "string",
+            "minLength": 1
+          },
+          "original": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "intermediaria": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "contexto": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "interlocutor": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "cena": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "hash_texto": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "visivel_apos": {
+            "type": "string",
+            "minLength": 1
+          },
+          "indexar": {
+            "type": "boolean"
+          },
+          "termos": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "alinhamento": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "required": [
+              "origem",
+              "destino"
+            ],
+            "properties": {
+              "origem": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "destino": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          },
+          "falante": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "required": [
+              "estado"
+            ],
+            "properties": {
+              "estado": {
+                "enum": [
+                  "confirmado",
+                  "incerto",
+                  "anonimo"
+                ]
+              },
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1
+              }
+            },
+            "if": {
+              "type": "object",
+              "properties": {
+                "estado": {
+                  "const": "confirmado"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

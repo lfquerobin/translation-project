@@ -1,11 +1,16 @@
 from copy import deepcopy
+import json
 from pathlib import Path
+import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
+from unittest.mock import Mock, patch
 
 from src.translation_project.arquivos import json_texto, sha256_arquivo
-from src.translation_project.memoria import INDICE, atualizar, buscar
-from test_registro import projeto_revisado
+from src.translation_project.memoria import INDICE, _executar_fts, atualizar, buscar
+from test_registro import REPO, projeto_revisado
 
 
 class MemoriaTest(unittest.TestCase):
@@ -85,3 +90,39 @@ class MemoriaTest(unittest.TestCase):
         self.assertEqual(resumo["removidos"], 4)
         self.assertTrue(indice.exists())
         self.assertEqual({s["id"] for s in self.busca(futuro=True)}, {"S3"})
+
+    def test_indice_fts_portavel_e_reconstruido_ao_reabrir_com_suporte(self):
+        if not atualizar(self.dados, self.raiz, aplicar=True)["fts"]:
+            self.skipTest("É necessário FTS5 para criar o índice de origem.")
+        db = Mock()
+        db.execute.side_effect = sqlite3.OperationalError("no such module: fts5")
+        self.assertFalse(_executar_fts(db, "SELECT rowid FROM busca_fts LIMIT 0"))
+        self.segmentos[0]["contexto"] = "Uma palavra inédita."
+        self.salvar()
+        with patch("src.translation_project.memoria._executar_fts", return_value=False):
+            self.assertFalse(atualizar(self.dados, self.raiz, aplicar=True)["fts"])
+            self.assertEqual({s["id"] for s in self.busca()}, {"S1"})
+        self.assertEqual({s["id"] for s in self.busca()}, {"S1"})
+        relatorio = atualizar(self.dados, self.raiz, aplicar=True)
+        self.assertTrue(relatorio["fts"])
+        self.assertEqual(relatorio["atualizados"], 0)
+        encontrados = buscar(self.dados, self.raiz, "inédita", obra=self.dados["obra"], versao="E1", ate="C01")
+        self.assertEqual([s["id"] for s in encontrados["resultados"]], ["S1"])
+
+    def test_cli_dry_run_atualizacao_e_busca(self):
+        (self.raiz / "projeto.json").write_text(json_texto(self.dados), encoding="utf-8")
+
+        def cli(acao, *args):
+            resultado = subprocess.run(
+                [sys.executable, "-B", "-X", "utf8", "-m", "src.translation_project",
+                 "memoria", acao, "--projeto", str(self.raiz), *args],
+                cwd=REPO, capture_output=True, encoding="utf-8", check=False,
+            )
+            self.assertEqual(resultado.returncode, 0, resultado.stderr)
+            return json.loads(resultado.stdout)
+
+        self.assertEqual(cli("atualizar")["segmentos_elegiveis"], 6)
+        self.assertFalse((self.raiz / INDICE).exists())
+        self.assertEqual(cli("atualizar", "--aplicar")["atualizados"], 6)
+        retorno = cli("buscar", "sintetico", "--obra", self.dados["obra"], "--versao", "E1", "--ate", "C01")
+        self.assertEqual([item["id"] for item in retorno["resultados"]], ["S1"])

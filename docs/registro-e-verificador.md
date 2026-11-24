@@ -120,6 +120,20 @@ Cadastre formas inteiras em `variantes_alerta`. Uma forma pode ser texto ou um o
 
 Vozes usam IDs próprios, inclusive para personagens com o mesmo nome. Uma hipótese pode ficar sem referência. Um exemplo confirmado exige edição, unidade, referência e os trechos original e traduzido. Associe as ocorrências confirmadas ao ID da voz quando útil. Preserve no registro candidatos e contexto e mantenha o tratamento independente do anonimato narrativo.
 
+### Memória local de tradução
+
+Defina `convencoes.memoria.segmentos` como caminho relativo para um registro conforme o [schema de segmentos v1](../schemas/segmentos-v1.schema.json). Cada trecho vincula unidade, tradução salva, referência e, se conferido, o SHA-256 do arquivo da unidade. Registre os campos de contexto conforme o que o leitor já sabe. Use `visivel_apos` para adiar resultados que dependem de uma revelação posterior.
+
+```sh
+traducao memoria atualizar --projeto "/caminho/obra" --dry-run
+traducao memoria atualizar --projeto "/caminho/obra" --aplicar
+traducao memoria buscar "uma expressão" --projeto "/caminho/obra" --obra "Nome da obra" --versao "E1" --ate V01-C01
+```
+
+Por padrão, a busca retorna trechos vigentes e revisados até a unidade indicada, inclusive. `--incluir-trabalho` inclui trechos em trabalho. `--incluir-futuro` amplia o limite dentro da mesma versão e deve ser usado apenas quando a tarefa exigir esse contexto. O resultado indica a situação do cotejo original separadamente. A busca lexical usa FTS5 quando disponível, com alternativa local por substrings. `--sem-fts` força a alternativa e `atualizar --aplicar --reconstruir` reconstrói o índice.
+
+Mantenha `.traducao/` fora do Git. O banco é derivado e contém excertos da obra. Use `convencoes.memoria.excluir_unidades` ou `indexar: false` nos segmentos para omitir material. A consulta já respeita a exclusão, e a próxima atualização retira as linhas correspondentes do índice.
+
 Teste com exemplos artificiais de arquivos válidos, registros incompletos, caminhos divergentes, falas repetidas e vistas desatualizadas. Verifique também que a regeneração preserva os textos e que um registro vazio é tratado como um projeto em preparação. A leitura das fontes e a revisão em português continuam a cargo da revisão editorial.
 
 
