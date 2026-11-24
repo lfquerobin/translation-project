@@ -15,3 +15,7 @@ Abra e leia o [guia editorial do Projeto de Tradução](https://github.com/lfque
 | Conferência e entrega | Cotejo de fidelidade, releitura em português e atualização dos registros. |
 
 Confirme as convenções relevantes antes de salvar a primeira unidade. Registre as escolhas neste arquivo e consulte [LINKS.md](LINKS.md) para as fontes da obra.
+
+## Versionamento
+
+Ao concluir uma alteração, faça um commit das mudanças neste repositório. Se o trabalho também alterar outro projeto, registre as mudanças desse projeto em um commit no repositório dele.
