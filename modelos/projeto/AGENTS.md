@@ -18,4 +18,4 @@ Confirme as convenções relevantes antes de salvar a primeira unidade. Registre
 
 ## Versionamento
 
-Ao concluir uma alteração, faça um commit das mudanças neste repositório. Se o trabalho também alterar outro projeto, registre as mudanças desse projeto em um commit no repositório dele.
+Ao concluir alterações, faça commit neste repositório e envie os commits ao GitHub pelo remoto `origin`, seguindo o fluxo de branches da obra. Faça o mesmo em cada repositório afetado, sem pedir nova confirmação. Confira o envio. Se falhar, preserve os commits locais e informe a causa.

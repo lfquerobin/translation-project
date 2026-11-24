@@ -63,7 +63,7 @@ Antes de corrigir uma passagem, confira a redação vigente e localize a evidên
 - Registre somente revisões realizadas, com data e escopo. Preserve o histórico ao registrar trabalho anterior. Coteje os trechos alterados após mudanças de conteúdo; alterações extensas pedem nova revisão integral. Após mudar a apresentação, verifique se a releitura contínua da versão final ainda está pendente.
 - Salve o texto integral no formato da obra. Confira no cabeçalho o título, o link, a data de publicação e o crédito da fonte usada. Indique dados ausentes com precisão e preserve as marcações pertinentes no texto e no nome do arquivo.
 - Execute o verificador da obra, quando houver, e confira os arquivos gerados. Use alertas automáticos para localizar problemas objetivos. A confirmação de sentido, voz, cobertura e falantes exige leitura. Na entrega, indique o arquivo salvo, as correções relevantes e as dúvidas ou limitações que permanecerem.
-- Ao concluir uma alteração, faça um commit das mudanças no repositório do projeto correspondente. Se o trabalho afetar mais de um projeto, faça commits separados em cada repositório. Siga o fluxo autorizado de sincronização e confira o resultado do envio antes de declará-lo concluído.
+- Ao concluir alterações, faça commit e envie os commits ao GitHub pelo remoto `origin` de cada projeto afetado, seguindo o fluxo de branches do repositório. O envio faz parte da entrega e dispensa nova confirmação. Confira se o destino remoto contém os commits. Se o envio falhar, preserve os commits locais e informe a causa.
 
 ## Referência de aplicação
 
