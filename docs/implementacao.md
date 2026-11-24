@@ -7,7 +7,7 @@
 | 0 · Fundação | Concluída | Seis testes de caracterização passaram no verificador original. A matriz multiplataforma está configurada. |
 | 1 · EPUB | Concluída | Interface legada, diagnósticos JSON, limites ZIP/XML e alinhamento v2 exercitados em EPUBs sintéticos. |
 | 2 · Registro e revisões | Concluída | Esquemas centrais, status derivado, invalidações e migração central v1 exercitados com registros sintéticos. |
-| 3 · Importação | Pendente | Usar o leitor EPUB para sugerir inventários sem presumir agrupamento. |
+| 3 · Importação | Concluída | Descoberta, confirmação, reexecução e confronto de edições validados com EPUB sintético. |
 | 4 · CLI e vistas | Pendente | Depende do contrato do registro e da importação. |
 | 5 · Glossário e vozes | Pendente | Depende do registro e das vistas. |
 | 6 · Memória | Pendente | Depende da estabilização dos registros. |
@@ -42,3 +42,10 @@
 - A primeira tentativa de criação exclusiva por hard link não funcionou na sandbox do Windows. A publicação da cópia agora usa renomeação sem substituição no Windows e hard link no Linux. O teste confirma que a cópia existente e o registro original ficam intactos.
 - `python -B -m unittest discover -s tests -q` passou com 22 testes. Os oito novos casos incluem restauração, renomeação, fonte trocada, revisão parcial, motivo para inaplicabilidade, histórico de migração, projeto e volume vazios e alteração de sumário.
 - Os contratos em `schemas/` descrevem inventários v1/v2 e registro de projeto v2. A validação semântica é independente de dependências de schema. A migração automática se limita ao formato central. O schema do glossário entra com a fase 5. O cálculo usa hash bruto e não tenta inferir equivalência semântica.
+
+## Fase 3
+
+- `importacao.py` usa o manifesto, nav e spine para descobrir ocorrências e sugerir agrupamentos. Confirmações são vinculadas ao SHA-256 da edição e precisam cobrir o spine integralmente em ordem. Capas em formato de imagem entram na extração de eventos.
+- `importar` e `inventario gerar` têm dry-run por padrão. A opção de escrita pode criar proposta, inventário v2, imagens e esqueleto vazio de tradução. A criação é exclusiva por arquivo, com conferência prévia de colisões e reaproveitamento de bytes idênticos. Se houver falha de disco durante a operação, a reexecução reaproveita o que foi gravado. A gravação do inventário vem por último.
+- `python -B -m unittest discover -s tests -q` passou com 25 testes. Os novos testes cobrem repetição de páginas e imagens, capa, extra não linear, navegação, reexecução, preservação de edição manual, diagnóstico de registros incompletos e comparação de edições. A verificação do esqueleto confirma que ele permanece pendente de tradução e alinhamento.
+- `docs/traduzir-epub.md` documenta confirmação e reexecução. O inventário registra inspeções pendentes e nunca preenche texto traduzido ou atribui equivalência editorial.

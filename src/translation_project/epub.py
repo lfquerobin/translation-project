@@ -2,6 +2,7 @@
 
 from contextlib import contextmanager
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import PureWindowsPath
 import ntpath
 import posixpath
@@ -74,9 +75,12 @@ def caminho_local(volume, pasta, destino):
 
 def caminho_registro(raiz, nome):
     partes = partes_portaveis(nome)
-    if any(p in {".", ".."} for p in partes):
+    if any(p in {".", ".."} or p.casefold() == ".git" for p in partes):
         raise ValueError(f"Caminho de registro precisa ser relativo e canônico: {nome}")
-    return caminho_local(raiz, raiz, quote(nome))
+    caminho = caminho_local(raiz, raiz, quote(nome))
+    if any(p.casefold() == ".git" for p in caminho.resolve().relative_to(raiz).parts):
+        raise ValueError(f"Caminho de registro aponta para metadados Git: {nome}")
+    return caminho
 
 
 @dataclass(frozen=True)
@@ -140,6 +144,18 @@ class Pacote:
 
     def xml(self, nome):
         return ET.fromstring(self.read(nome), parser=ET.XMLParser(target=SemDTD()))
+
+    def digest(self):
+        arquivo = self.zip.fp
+        posicao = arquivo.tell()
+        try:
+            arquivo.seek(0)
+            digest = sha256()
+            for bloco in iter(lambda: arquivo.read(64 * 1024), b""):
+                digest.update(bloco)
+            return digest.hexdigest()
+        finally:
+            arquivo.seek(posicao)
 
 
 @dataclass(frozen=True)
@@ -332,3 +348,11 @@ def extrair_pagina(epub, pagina, *, legado=False):
             avisos.append(("XHTML_LEGADO", "Conteúdo fora da contagem v1. Confira pelo inventário v2."))
         eventos = eventos_v1
     return eventos, list(dict.fromkeys(avisos))
+
+
+def eventos_item(epub, item, *, legado=False):
+    if item.tipo in {"", "application/xhtml+xml", "text/html", "image/svg+xml"}:
+        return extrair_pagina(epub, item.caminho, legado=legado)
+    if item.tipo.startswith("image/"):
+        return [("imagem", item.caminho)], []
+    return [], [("SPINE_NAO_SUPORTADO", f"Mídia do spine requer conferência manual: {item.tipo}.")]

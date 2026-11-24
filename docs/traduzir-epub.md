@@ -8,6 +8,36 @@ Use este fluxo quando a edição de trabalho estiver em EPUB e a entrega for em 
 2. Antes de traduzir, inventarie o volume. Inclua capa, introdução, capítulos, epílogo, ilustrações, notas, créditos e outros extras que existirem na edição. Identifique cada unidade como narrativa, extra ou material editorial para acompanhar a cobertura de cada tipo.
 3. Use o sumário para identificar as unidades e a ordem de leitura do EPUB para localizar as partes de cada unidade. Confira também páginas que aparecem na sequência de leitura sem entrada no sumário.
 
+### Descoberta e importação assistidas
+
+Da raiz das ferramentas, faça primeiro uma leitura da edição:
+
+```sh
+python -B -m src.translation_project importar "/caminho/edicao.epub" --projeto "/caminho/obra" --dry-run
+```
+
+A proposta JSON inclui SHA-256, metadados, manifesto, spine, navegação, ocorrências de imagens e agrupamentos sugeridos. O spine preserva capas, extras, páginas sem entrada no sumário, itens não lineares e repetições. Revise as sugestões e prepare um arquivo de confirmação no formato abaixo. Os IDs `p0001`, `p0002` e seguintes correspondem a ocorrências do spine, não a nomes de arquivo.
+
+```json
+{
+  "sha256_epub": "<copie o valor da proposta>",
+  "sumario": "000. Sumário.md",
+  "navegacao": ["p0001"],
+  "unidades": [
+    {"id": "V01-C01", "markdown": "001. Capítulo.md", "paginas": ["p0002", "p0003"]}
+  ]
+}
+```
+
+Inclua todas as ocorrências do spine em ordem. A lista `navegacao` pode excluir as páginas nav declaradas no manifesto. A confirmação pertence à edição identificada pelo hash. Use `--anterior` com a proposta ou o inventário anterior para comparar a edição.
+
+```sh
+python -B -m src.translation_project inventario gerar "/caminho/edicao.epub" --projeto "/caminho/obra" --confirmacao "/caminho/confirmacao.json" --saida "Volume 01/inventario.json" --dry-run
+python -B -m src.translation_project inventario gerar "/caminho/edicao.epub" --projeto "/caminho/obra" --confirmacao "/caminho/confirmacao.json" --saida "Volume 01/inventario.json" --aplicar --extrair-imagens --esqueleto
+```
+
+`--extrair-imagens` e `--esqueleto` são opcionais. O esqueleto contém sumário e arquivos vazios de tradução, com indicação de pendência. `--deduplicar` usa o SHA-256 da arte para compartilhar cópias físicas e manter cada ocorrência no inventário. A inspeção começa pendente e o alinhamento v2 precisa ser preenchido. Arquivos existentes idênticos são reaproveitados. Um arquivo divergente bloqueia a gravação, para que a revisão anterior possa ser comparada e preservada.
+
 ## Registrar a inspeção de cada imagem
 
 Use o [modelo de inventário em JSON](../modelos/epub/inventario-epub.json) na pasta do volume. Registre cada ocorrência de imagem na unidade em que aparece, na ordem de leitura, com o caminho no EPUB, o caminho na edição em Markdown e o resultado da inspeção. Uma arte repetida em outra passagem ganha outra entrada.

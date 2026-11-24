@@ -17,7 +17,7 @@ from zipfile import BadZipFile
 from zlib import error as ErroCompressao
 
 from .arquivos import ler_json, sha256_arquivo
-from .epub import Limites, Pacote, caminho_local, caminho_registro, chave_portavel, extrair_pagina, ler_edicao
+from .epub import Limites, Pacote, caminho_local, caminho_registro, chave_portavel, eventos_item, ler_edicao
 from .markdown import SEPARADOR, analisar_links, ancoras, blocos_markdown
 
 
@@ -252,7 +252,7 @@ def verificar(epub, inventario, volume):
     imagens_registradas = 0
     paginas_esperadas = set(esperado)
     cache_paginas, hashes = {}, {}
-    tipos_paginas = {pagina.item.caminho: pagina.item.tipo for pagina in edicao.spine}
+    itens_spine = {pagina.item.caminho: pagina.item for pagina in edicao.spine}
     for unidade, id_unidade in zip(unidades, ids):
         nome = unidade['markdown']
 
@@ -269,13 +269,8 @@ def verificar(epub, inventario, volume):
             if pagina not in epub.entradas:
                 reportar("XHTML_AUSENTE", "Página do spine ausente do pacote.", local=pagina)
                 continue
-            tipo = tipos_paginas[pagina]
-            if tipo not in {"", "application/xhtml+xml", "text/html", "image/svg+xml"}:
-                reportar("SPINE_NAO_SUPORTADO", f"Mídia do spine requer conferência manual: {tipo}.",
-                         "aviso", local=pagina)
-                continue
             if pagina not in cache_paginas:
-                cache_paginas[pagina] = extrair_pagina(epub, pagina, legado=legado)
+                cache_paginas[pagina] = eventos_item(epub, itens_spine[pagina], legado=legado)
             eventos, avisos = cache_paginas[pagina]
             elementos_epub.extend(eventos)
             for codigo, mensagem in avisos:
