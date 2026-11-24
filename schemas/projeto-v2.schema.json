@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Registro central de projeto v2",
+  "type": "object",
+  "required": [
+    "schema",
+    "idioma_destino",
+    "unidades"
+  ],
+  "properties": {
+    "schema": {
+      "const": 2
+    },
+    "obra": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "versao": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "idioma_destino": {
+      "type": "string",
+      "minLength": 1
+    },
+    "unidades": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unidade"
+      }
+    },
+    "ocorrencias": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ocorrencia"
+      }
+    },
+    "volumes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/volume"
+      }
+    }
+  },
+  "$defs": {
+    "unidade": {
+      "type": "object",
+      "required": [
+        "id",
+        "arquivo",
+        "ordem",
+        "fontes",
+        "cobertura",
+        "historico"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "arquivo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ordem": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tipo": {
+          "enum": [
+            "narrativa",
+            "extra",
+            "editorial",
+            null
+          ]
+        },
+        "volume": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "edicao_trabalho": {
+          "enum": [
+            "original",
+            "intermediaria",
+            null
+          ]
+        },
+        "fontes": {
+          "type": "object",
+          "properties": {
+            "original": {
+              "$ref": "#/$defs/fonte"
+            },
+            "intermediaria": {
+              "$ref": "#/$defs/fonte"
+            }
+          }
+        },
+        "cobertura": {
+          "type": "object",
+          "required": [
+            "estado"
+          ],
+          "properties": {
+            "estado": {
+              "enum": [
+                "pendente",
+                "parcial",
+                "integral"
+              ]
+            },
+            "hash_texto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                { "type": "null" }
+              ]
+            }
+          }
+        },
+        "historico": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/revisao"
+          }
+        },
+        "imagens": {
+          "$ref": "#/$defs/inspecao"
+        },
+        "notas": {
+          "$ref": "#/$defs/inspecao"
+        }
+      }
+    },
+    "fonte": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "arquivo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "referencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "edicao": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "idioma": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data_publicacao": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "credito": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "revisao": {
+      "type": "object",
+      "required": [
+        "id",
+        "etapa",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "etapa": {
+          "enum": [
+            "fidelidade_original",
+            "fidelidade_intermediaria",
+            "naturalidade",
+            "falantes",
+            "formato"
+          ]
+        },
+        "estado": {
+          "enum": [
+            "pendente",
+            "parcial",
+            "concluida",
+            "em_investigacao",
+            "inaplicavel",
+            "historica",
+            "desatualizada"
+          ]
+        },
+        "data": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "escopo": {
+          "anyOf": [
+            {
+              "enum": [
+                "integral",
+                null
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "hash_texto": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            { "type": "null" }
+          ]
+        },
+        "arquivo_conferido": {
+          "type": "string",
+          "minLength": 1
+        },
+        "responsavel": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidencias": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "motivo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fonte": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "papel",
+            "referencia"
+          ],
+          "properties": {
+            "papel": {
+              "enum": [
+                "original",
+                "intermediaria"
+              ]
+            },
+            "referencia": {
+              "type": "string",
+              "minLength": 1
+            },
+            "edicao": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "hash": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ocorrencia": {
+      "type": "object",
+      "required": [
+        "id",
+        "unidade",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unidade": {
+          "type": "string",
+          "minLength": 1
+        },
+        "estado": {
+          "enum": [
+            "aberta",
+            "em_investigacao",
+            "resolvida",
+            "anonimato_intencional"
+          ]
+        },
+        "bloqueante": { "type": "boolean" }
+      }
+    },
+    "inspecao": {
+      "type": "object",
+      "required": [
+        "estado"
+      ],
+      "properties": {
+        "estado": {
+          "enum": [
+            "pendente",
+            "parcial",
+            "concluida",
+            "inaplicavel"
+          ]
+        },
+        "hash_texto": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "evidencias": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "motivo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "volume": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "arquivos_conjunto": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "conjunto": {
+          "type": "object",
+          "required": [
+            "estado"
+          ],
+          "properties": {
+            "estado": {
+              "enum": [
+                "pendente",
+                "concluida"
+              ]
+            },
+            "hash": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "data": {
+              "type": "string",
+              "format": "date"
+            },
+            "evidencias": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

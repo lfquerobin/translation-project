@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Inventário de EPUB v1 e v2",
+  "type": "object",
+  "required": [
+    "schema",
+    "sumario",
+    "unidades"
+  ],
+  "properties": {
+    "schema": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "sumario": {
+      "type": "string",
+      "minLength": 1
+    },
+    "paginas_de_navegacao": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "permitir_html": { "type": "boolean" },
+    "idioma_destino": {
+      "type": "string",
+      "minLength": 1
+    },
+    "metrica_palavras": {
+      "type": "object",
+      "properties": {
+        "idioma_fonte": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "habilitada": { "type": "boolean" },
+        "minimo_fonte": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "proporcao_minima": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "unidades": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/unidade"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema": {
+            "const": 2
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "unidades": {
+            "items": {
+              "required": [
+                "alinhamento"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "unidade": {
+      "type": "object",
+      "required": [
+        "markdown",
+        "paginas_epub"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "markdown": {
+          "type": "string",
+          "minLength": 1
+        },
+        "paginas_epub": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "blocos_iniciais": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "divisoes_de_paragrafo": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 2
+          }
+        },
+        "alinhamento": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/alinhamento"
+          }
+        },
+        "imagens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/imagem"
+          }
+        }
+      }
+    },
+    "alinhamento": {
+      "type": "object",
+      "required": [
+        "origem",
+        "destino"
+      ],
+      "properties": {
+        "origem": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "pattern": "^e[1-9][0-9]*$"
+          }
+        },
+        "destino": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "pattern": "^m[1-9][0-9]*$"
+          }
+        },
+        "justificativa": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "imagem": {
+      "type": "object",
+      "required": [
+        "epub",
+        "markdown",
+        "estado"
+      ],
+      "properties": {
+        "epub": {
+          "type": "string",
+          "minLength": 1
+        },
+        "markdown": {
+          "type": "string",
+          "minLength": 1
+        },
+        "estado": {
+          "enum": [
+            "sem_texto",
+            "traduzido",
+            "parcial",
+            "ilegivel",
+            "pendente"
+          ]
+        },
+        "blocos_traducao": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nota": { "type": "string" },
+        "conversao": {
+          "type": "object",
+          "required": [
+            "metodo",
+            "justificativa",
+            "sha256_origem",
+            "sha256_destino"
+          ],
+          "properties": {
+            "metodo": {
+              "type": "string",
+              "minLength": 1
+            },
+            "justificativa": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256_origem": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "sha256_destino": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

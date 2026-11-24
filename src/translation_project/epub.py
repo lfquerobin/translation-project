@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import PureWindowsPath
+import ntpath
 import posixpath
 import stat
 import unicodedata
@@ -13,6 +14,7 @@ from zipfile import ZipFile
 
 EPUB_TYPE = "{http://www.idpf.org/2007/ops}type"
 XLINK_HREF = "{http://www.w3.org/1999/xlink}href"
+RESERVADO = getattr(ntpath, "isreserved", lambda nome: PureWindowsPath(nome).is_reserved())
 
 
 def chave_portavel(nome):
@@ -26,7 +28,7 @@ def partes_portaveis(nome):
     for parte in partes:
         if parte in {".", ".."}:
             continue
-        if (not parte or parte.endswith((" ", ".")) or PureWindowsPath(parte).is_reserved()
+        if (not parte or parte.endswith((" ", ".")) or RESERVADO(parte)
                 or any(ord(c) < 32 or c in '<>"|?*' for c in parte)):
             raise ValueError(f"Componente de caminho inválido: {parte!r}")
     return partes

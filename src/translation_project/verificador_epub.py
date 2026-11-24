@@ -16,6 +16,7 @@ from xml.etree import ElementTree as ET
 from zipfile import BadZipFile
 from zlib import error as ErroCompressao
 
+from .arquivos import ler_json, sha256_arquivo
 from .epub import Limites, Pacote, caminho_local, caminho_registro, chave_portavel, extrair_pagina, ler_edicao
 from .markdown import SEPARADOR, analisar_links, ancoras, blocos_markdown
 
@@ -51,14 +52,6 @@ def palavras_markdown(texto):
             cursor = max(cursor, link.fim)
     partes.append(texto[cursor:])
     return contar_palavras(" ".join(partes).strip() or texto)
-
-
-def sha256_arquivo(caminho):
-    digest = sha256()
-    with caminho.open("rb") as arquivo:
-        for bloco in iter(lambda: arquivo.read(64 * 1024), b""):
-            digest.update(bloco)
-    return digest.hexdigest()
 
 
 def verificar_imagem(epub, registro, destino, hashes, reportar):
@@ -391,7 +384,7 @@ def main(argv=None):
     parser.add_argument('--limite-bytes-total', type=int, default=Limites.bytes_total)
     args = parser.parse_args(argv)
     try:
-        inventario = json.loads(args.inventario.read_text(encoding='utf-8-sig'))
+        inventario = ler_json(args.inventario)
         limites = Limites(args.limite_entradas, args.limite_bytes_entrada, args.limite_bytes_total)
         with Pacote.abrir(args.epub, limites) as epub:
             achados, unidades, imagens = verificar(epub, inventario, args.inventario.parent)
