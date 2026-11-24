@@ -103,6 +103,9 @@ def validar_registro(dados, raiz):
     if type(dados.get("schema")) is not int or dados["schema"] != 2:
         raise ValueError("Use o schema central 2. Para o schema central 1, consulte o comando migrar.")
     texto(dados.get("idioma_destino"), "idioma_destino")
+    convencoes = objeto(dados.get("convencoes", {}), "convencoes")
+    if type(convencoes.get("painel", False)) is not bool:
+        raise ValueError("convencoes.painel precisa ser booleano.")
     unidades = indice_unico(dados.get("unidades"), "unidades")
     volumes = indice_unico(dados.get("volumes", []), "volumes")
     ocorrencias = indice_unico(dados.get("ocorrencias", []), "ocorrencias")

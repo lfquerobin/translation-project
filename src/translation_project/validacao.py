@@ -141,7 +141,7 @@ def verificar_projeto(dados, raiz, *, unidade=None, volume=None, conferir_vistas
                           if p.is_file() and not p.is_symlink() and p.suffix.lower() == ".md")
         for nome in sorted(orfaos - registrados):
             achados.append(Achado("ARQUIVO_ORFAO", "aviso", nome, "Texto sem unidade correspondente."))
-        if conferir_vistas or convencoes.get("vistas"):
+        if conferir_vistas or convencoes.get("vistas") or convencoes.get("painel"):
             for nome, (_, estado, _) in inspecionar_vistas(raiz, gerar_vistas(dados, status, raiz)).items():
                 if estado != "atual":
                     achados.append(Achado("VISTA_DIVERGENTE", "aviso", nome, f"Vista {estado}."))

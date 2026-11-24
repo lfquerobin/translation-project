@@ -28,6 +28,19 @@ Para obras em EPUB com entrega em Markdown, siga o [guia de preparação do volu
 - No registro da obra, diferencie o anonimato intencional de uma atribuição ainda incerta. Para uma dúvida editorial, anote o trecho exato, o original quando disponível, os candidatos, o motivo, a fonte e o que falta confirmar. Use no texto a marcação definida pela obra e mantenha as hipóteses no registro.
 - Preserve e traduza as notas da fonte. Registre observações novas fora da narrativa, nos arquivos editoriais do projeto, salvo instrução do usuário.
 
+## Instruções e retomada
+
+Leia o guia central e o `AGENTS.md` da obra. Use as convenções locais para edição, fontes, formato e registros, preservando as exigências de fidelidade, clareza de evidência e aprovação deste guia.
+
+| Tarefa | Leitura antes de começar |
+| --- | --- |
+| Criar obra ou mudar convenções | [Criação de projeto](docs/criar-projeto.md) e modelos aplicáveis. |
+| Traduzir ou revisar | Unidade e fontes integrais, `LINKS.md`, glossário, vozes, pendências e contexto anterior relevante. |
+| Preparar volume EPUB | [Guia de EPUB](docs/traduzir-epub.md), inventário e convenções de imagens. |
+| Migrar, validar, gerar vistas ou buscar memória | [Guia de registro e verificador](docs/registro-e-verificador.md) e registros canônicos da obra. |
+
+Ao retomar, identifique a unidade e a edição, compare o hash salvo com o registrado quando houver e confira a fonte e o estado de cada etapa. Use apenas o contexto disponível no ponto narrativo. Só reutilize uma revisão anterior quando a evidência indicar o escopo e sua vigência. Antes de editar uma passagem em revisão, localize a evidência e, depois da edição, confira a passagem integral. Siga as passadas abaixo e registre data, escopo e, quando o formato comportar, hash das etapas efetivamente realizadas.
+
 ## Traduzir e aprovar por capítulo
 
 Trate cada capítulo como uma unidade de tradução e aprovação. Prólogos, epílogos e extras passam pelo mesmo fluxo, conforme o conteúdo e a fonte de cada um. Se um capítulo estiver dividido entre arquivos do EPUB, reúna todas as partes antes do cotejo. Uma primeira passagem automatizada em lote pode servir de rascunho. Retome cada capítulo individualmente para traduzir ou revisar e registre o resultado por unidade.

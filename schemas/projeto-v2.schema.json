@@ -39,6 +39,24 @@
         "$ref": "#/$defs/ocorrencia"
       }
     },
+    "convencoes": {
+      "type": "object",
+      "properties": {
+        "painel": {"type": "boolean"},
+        "memoria": {
+          "type": "object",
+          "required": ["segmentos"],
+          "properties": {
+            "segmentos": {"type": "string", "minLength": 1},
+            "excluir_unidades": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
     "volumes": {
       "type": "array",
       "items": {

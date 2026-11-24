@@ -102,6 +102,8 @@ traducao validar-entrega --projeto "/caminho/obra" --volume V01
 
 `sincronizar` gera vistas locais de `projeto.json`. A conferência sinaliza divergências sem gravar. O comando de escrita preserva arquivos manuais e interrompe a geração se encontrar anotações ainda não migradas. Após migrá-las, arquive a vista manual para liberar seu nome à vista gerada. Defina `convencoes.vistas: true` ou use `verificar --conferir-vistas` para incluir as vistas na validação geral.
 
+Defina `convencoes.painel: true` para incluir `PAINEL.md` nas vistas e na conferência. Abra o arquivo em qualquer leitor Markdown, inclusive no Obsidian. O painel mostra unidades por volume, cobertura, etapas concluídas sobre etapas aplicáveis, inspeções de imagem, revisões desatualizadas e pendências bloqueantes. Se um volume declarar `inventario`, o painel conta cada ocorrência de imagem pelos estados registrados. Quando faltar inventário, ele informa a indisponibilidade da contagem de imagens. A aprovação pela edição de trabalho e a conferência do conjunto aparecem separadamente.
+
 `validar-entrega` usa a revisão registrada de todas as unidades e os arquivos de conjunto do volume. Se o volume declarar `epub` e `inventario` com caminhos dentro da obra, o comando também confere a estrutura do EPUB e do Markdown. A edição original pendente aparece no status mesmo quando a entrega pela edição de trabalho estiver apta.
 
 O resultado é 0 se o modo escolhido passar, 1 se houver divergência ou pendência bloqueante para aquele modo e 2 para uso ou dados inválidos. Em modo estrito, avisos e pendências também falham. `--json` retorna um objeto versionado com códigos de diagnóstico.

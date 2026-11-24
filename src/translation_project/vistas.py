@@ -1,14 +1,16 @@
 """Vistas determinísticas do registro, protegidas contra substituição editorial."""
 
+from collections import Counter, defaultdict
 from hashlib import sha256
 from html import escape
 import re
 from urllib.parse import quote
 
-from .arquivos import criar_arquivo, substituir_arquivo
+from .arquivos import criar_arquivo, ler_json, substituir_arquivo
 from .editorial import abrir_editorial, validar_glossario, validar_vozes
 from .epub import caminho_registro
-from .registro import ETAPAS
+from .registro import ETAPAS, lista, objeto, texto
+from .verificador_epub import ESTADOS_IMAGEM
 
 
 AVISO = "<!-- Gerado de projeto.json com traducao sincronizar --aplicar. SHA-256: "
@@ -92,7 +94,93 @@ def gerar_vistas(dados, status, raiz=None):
             geradas["GLOSSÁRIO.md"] = _glossario(validar_glossario(glossario), dados["convencoes"]["glossario"])
         if vozes is not None:
             geradas["VOZES.md"] = _vozes(validar_vozes(vozes, dados), dados["convencoes"]["vozes"])
+        if dados.get("convencoes", {}).get("painel", False):
+            geradas["PAINEL.md"] = _painel(dados, status, raiz)
     return geradas
+
+
+def _imagens_volume(raiz, volume):
+    nome = volume.get("inventario")
+    if nome is None:
+        return None
+    caminho = caminho_registro(raiz, texto(nome, "volume.inventario"))
+    if not caminho.is_file():
+        return None
+    inventario = objeto(ler_json(caminho), nome)
+    if type(inventario.get("schema")) is not int or inventario["schema"] not in (1, 2):
+        raise ValueError(f"Schema de inventário incompatível em {nome}.")
+    contagem = Counter()
+    for unidade in lista(inventario.get("unidades"), f"{nome}.unidades"):
+        for imagem in lista(objeto(unidade, "unidade").get("imagens", []), f"{nome}.imagens"):
+            estado = objeto(imagem, "imagem").get("estado")
+            if estado not in ESTADOS_IMAGEM:
+                raise ValueError(f"Estado de imagem inválido em {nome}: {estado}")
+            contagem[estado] += 1
+    return contagem
+
+
+def _resumo_painel(unidades):
+    total = len(unidades)
+    cobertura = Counter(item["cobertura"] for item in unidades)
+    revisadas = sum(item["estado"] == "revisada_edicao_trabalho" for item in unidades)
+    bloqueios = sum(len(item["bloqueios"]) for item in unidades)
+    linhas = [
+        f"- Unidades com tradução integral: {cobertura['integral']}/{total}",
+        f"- Unidades com tradução parcial: {cobertura['parcial']}/{total}",
+        f"- Unidades revisadas pela edição de trabalho: {revisadas}/{total}",
+        f"- Pendências bloqueantes: {bloqueios} em {sum(bool(u['bloqueios']) for u in unidades)}/{total} unidades",
+        "",
+        linha_tabela(["Etapa", "Concluídas / aplicáveis", "Inaplicáveis", "Desatualizadas"]),
+        linha_tabela(["---"] * 4),
+    ]
+    rotulos = ("Cotejo com o original", "Cotejo com a intermediária", "Naturalidade", "Falantes", "Formato")
+    for etapa, rotulo in zip(ETAPAS, rotulos):
+        estados = Counter(item["revisoes"][etapa]["estado"] for item in unidades)
+        linhas.append(linha_tabela([
+            rotulo, f"{estados['concluida']}/{total - estados['inaplicavel']}",
+            estados["inaplicavel"], estados["desatualizada"],
+        ]))
+    imagens = Counter(item["inspecoes"]["imagens"] for item in unidades)
+    linhas.extend(["", f"- Inspeção de imagens por unidade: {imagens['concluida']}/{total - imagens['inaplicavel']}"
+                   f" concluídas, {imagens['inaplicavel']} inaplicáveis, {imagens['desatualizada']} desatualizadas.", ""])
+    return linhas
+
+
+def _painel(dados, status, raiz):
+    linhas = [
+        "# Painel editorial", "",
+        "[Registro](projeto.json) · [Acompanhamento](ACOMPANHAMENTO.md) · [Pendências](PEND%C3%8ANCIAS.md)", "",
+        "As contagens refletem o registro editorial. A conferência técnica usa o comando traducao verificar.", "",
+    ]
+    if not status["unidades"]:
+        linhas.extend(["Projeto em preparação.", ""])
+    por_volume = defaultdict(list)
+    for item in status["unidades"]:
+        por_volume[item["volume"]].append(item)
+    inventarios = {volume["id"]: _imagens_volume(raiz, volume) for volume in dados.get("volumes", [])}
+    conhecidos = [contagem for contagem in inventarios.values() if contagem is not None]
+
+    def mostrar_imagens(contagem):
+        total = contagem.total()
+        estados = ", ".join(f"{estado}: {contagem[estado]}/{total}" for estado in sorted(ESTADOS_IMAGEM))
+        linhas.extend([f"- Ocorrências de imagens em inventário: {estados}.", ""])
+
+    linhas.extend(_resumo_painel(status["unidades"]))
+    linhas.extend([f"- Volumes com inventário disponível: {len(conhecidos)}/{len(inventarios)}.", ""])
+    if conhecidos:
+        mostrar_imagens(sum(conhecidos, Counter()))
+    if por_volume[None]:
+        linhas.extend(["## Unidades sem volume", "", *_resumo_painel(por_volume[None])])
+    for volume in status["volumes"]:
+        ident = volume["id"]
+        linhas.extend([f"## {celula(ident)}", "", f"- Situação do volume: {volume['estado']}",
+                       f"- Conferência do conjunto: {volume['conjunto']}", "", *_resumo_painel(por_volume[ident])])
+        contagem = inventarios[ident]
+        if contagem is None:
+            linhas.extend(["Inventário de imagens indisponível.", ""])
+        else:
+            mostrar_imagens(contagem)
+    return vista(linhas)
 
 
 def _glossario(termos, arquivo):
