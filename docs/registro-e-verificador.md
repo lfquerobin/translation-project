@@ -81,6 +81,29 @@ Execute com Python 3.10 ou mais recente, da raiz do projeto principal.
 python tools/verificar_epub.py "caminho/volume.epub" "caminho/Volume 02/inventario-epub.json"
 ```
 
-O verificador compara o inventário com o `spine` e os sumários disponíveis, verifica os destinos dos links Markdown locais em linha e compara a ordem das imagens de cada unidade. Para a comparação de texto, conta parágrafos XHTML e blocos Markdown, descontando o cabeçalho e as traduções das imagens registradas. Quando os totais coincidem, compara a posição das imagens entre blocos e sinaliza traduções com menos de 60% do número de palavras de um parágrafo de pelo menos 20 palavras na fonte. Também aponta caracteres suspeitos e inspeções pendentes.
+O verificador compara a sequência de todas as ocorrências do `spine`, inclusive itens não lineares, com o inventário. Exclui apenas as páginas explicitamente cadastradas como navegação. Consulta o sumário nav ou NCX quando disponível. Um destino pode aparecer várias vezes, e o verificador sinaliza quando uma página do sumário corresponde a mais de uma unidade.
 
-Execute-o em modo de leitura e use a saída para localizar os trechos a cotejar. Uma mudança legítima na divisão de parágrafos pode gerar aviso. A inspeção visual confirma o conteúdo das imagens e a comparação editorial confirma o sentido e a cobertura das passagens. Use `--estrito` na conferência da entrega para retornar 1 também se houver avisos. A saída é 0 quando os critérios do modo escolhido forem atendidos e 2 se o EPUB ou o inventário não puder ser lido.
+O parser aceita links em linha e por referência, imagens, escapes e destinos percent-encoded. A conferência ignora links em cercas de código, código inline e comentários. Valida âncoras de títulos Markdown por slug e IDs HTML quando `permitir_html` estiver habilitado. O parser cobre o subconjunto editorial documentado e não promete compatibilidade com todas as extensões ou construções multilinha do CommonMark. Recursos externos nunca são buscados.
+
+No inventário v1, a numeração permanece restrita aos parágrafos XHTML com texto. O verificador desconta os blocos de cabeçalho e os de tradução de imagem e avisa quando há conteúdo que requer a contagem ampliada. A comparação de palavras usa 20 palavras como mínimo de origem e 60% como limiar padrão. No v1, um idioma ausente preserva a heurística anterior. Informe `metrica_palavras.idioma_fonte` para substituir o idioma do OPF, ou `metrica_palavras.habilitada: false` para desativar. Ajuste `minimo_fonte` e `proporcao_minima` no mesmo objeto. A métrica é desativada para idiomas sem contagem comparável, como o japonês.
+
+### Alinhamento explícito no inventário v2
+
+Use `schema: 2` e informe `alinhamento` em cada unidade. O extrator mantém eventos de texto, imagem e separador na ordem de ocorrência. Títulos, células, itens de lista e notas contam como blocos de origem. Em contêineres aninhados, o texto já atribuído a um bloco não é repetido. A leitura principal de ruby conta o texto base. A inspeção de arte SVG vetorial, mídia e texto alternativo continua editorial.
+
+Os IDs posicionais da edição são `e1`, `e2`, … na origem e `m1`, `m2`, … no Markdown. Eles permanecem iguais em reexecuções com a mesma estrutura. Imagens e separadores ocupam posição na sequência, mas só os IDs de texto entram nos grupos. Revise o mapa quando inserir ou remover um evento. No Markdown, cada bloco é delimitado por linha em branco, e traduções de imagem seguem o campo `blocos_traducao`. A métrica do v2 é calculada por grupo quando os idiomas forem compatíveis. Sem idioma de origem declarado, ela fica desativada. Registre grupos consecutivos e justifique divisões e uniões:
+
+```json
+[
+  {"origem": ["e1", "e2"], "destino": ["m1"], "justificativa": "O par de frases forma um bloco contínuo."},
+  {"origem": ["e4"], "destino": ["m3", "m4"], "justificativa": "A fala e a ação ficam em blocos separados."}
+]
+```
+
+Nesse exemplo, `e3` e `m2` são ocorrências da mesma imagem. O verificador compara arquivos de imagem por SHA-256. Uma conversão exige o objeto `conversao` com `metodo`, `justificativa`, `sha256_origem` e `sha256_destino`. A equivalência visual e o estado de inspeção exigem revisão editorial.
+
+### Diagnósticos e limites
+
+Use `--json` para receber códigos estáveis, gravidade, unidade, caminho e linha quando disponível. A execução retorna 0 se os critérios técnicos do modo escolhido forem atendidos, 1 para divergências e 2 para entrada inválida ou ilegível. Em `--estrito`, avisos e pendências também retornam 1. Use `--debug` para ver rastreamento de falhas de leitura.
+
+O verificador limita o ZIP a 10.000 entradas, 32 MiB por entrada e 256 MiB descompactados. Ajuste com `--limite-entradas`, `--limite-bytes-entrada` e `--limite-bytes-total`. A leitura rejeita escapes da raiz, colisões portáveis, links simbólicos no ZIP e declarações XML DOCTYPE. Nenhum arquivo é extraído durante a conferência.
