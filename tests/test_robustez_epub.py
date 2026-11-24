@@ -6,6 +6,7 @@ import unicodedata
 
 from fixtures import CAPITULO, PAGINA, SUMARIO, TEXTO, entradas_epub, inventario, preparar, xhtml
 from test_verificar_epub import executar
+from src.translation_project.epub import caminho_registro
 
 
 OPF = "OEBPS/obra.opf"
@@ -14,6 +15,14 @@ REGISTRO_IMAGEM = {"epub": IMAGEM, "markdown": "gravura.png", "estado": "sem_tex
 
 
 class RobustezTest(unittest.TestCase):
+    def test_registro_aceita_raiz_e_destino_com_resolucao_equivalente(self):
+        auxiliar = self.pasta / "auxiliar"
+        auxiliar.mkdir()
+        arquivo = self.pasta / "Capítulo.md"
+        arquivo.write_text("Trecho sintético.", encoding="utf-8")
+        raiz_alternativa = auxiliar / ".."
+        self.assertEqual(caminho_registro(raiz_alternativa, arquivo.name).resolve(), arquivo.resolve())
+
     def setUp(self):
         pasta = tempfile.TemporaryDirectory()
         self.addCleanup(pasta.cleanup)

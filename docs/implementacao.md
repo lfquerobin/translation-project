@@ -12,7 +12,7 @@
 | 5 · Glossário e vozes | Concluída | Esquemas opcionais, alertas contextuais e vistas integrados à CLI. |
 | 6 · Memória | Concluída | Schema e guia de segmentos, fluxo pela CLI e recuperação do índice ao mudar a disponibilidade de FTS5. |
 | 7 · Instruções e painel | Concluída | Matriz de leitura e retomada no guia central. Painel opcional com contagens por volume. |
-| 8 · CI e integração | Concluída localmente | Suíte em quatro combinações de sistema e Python, validação de contratos e demonstração integrada. Workflow preparado para execução no GitHub. |
+| 8 · CI e integração | Implementada | Suíte em quatro combinações de sistema e Python, validação de contratos e demonstração integrada. Workflow publicado no GitHub. |
 
 ## Diagnóstico inicial
 
@@ -92,7 +92,7 @@
 | Linux no WSL | 3.14.10 | 42 passaram |
 
 - `python -B tools/validar_repositorio.py` conferiu cinco schemas, seus exemplos e 44 links locais em 14 documentos. A wheel construída no Windows foi instalada num ambiente virtual. `python -B tools/validar_repositorio.py --instalacao` confirmou o comando e os modelos fora do checkout.
-- A validação da matriz ocorreu localmente. A execução nos runners do GitHub Actions começa após publicação autorizada.
+- A primeira execução no GitHub Actions passou nos dois jobs Linux e revelou uma comparação incorreta entre o caminho canônico de um arquivo e a forma abreviada da raiz temporária no Windows. A conferência de contenção agora compara caminhos canônicos e ganhou um teste de regressão. [Primeira execução no GitHub Actions](https://github.com/lfquerobin/translation-project/actions/runs/45502183168)
 
 ## Histórico e verificação
 

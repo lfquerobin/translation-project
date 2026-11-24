@@ -55,6 +55,7 @@ def caminho_local(volume, pasta, destino):
         raise ValueError(f"Caminho absoluto: {destino}")
     if url.scheme or url.netloc or not url.path:
         return None
+    raiz_real = volume.resolve()
     caminho = pasta
     for parte in partes_portaveis(unquote(url.path, errors="strict")):
         if parte == ".":
@@ -68,7 +69,7 @@ def caminho_local(volume, pasta, destino):
                 if candidatos and candidatos != [parte]:
                     raise ValueError(f"Caixa ou normalização Unicode ambígua no destino: {destino}")
             caminho = caminho / parte
-        if not caminho.resolve().is_relative_to(volume):
+        if not caminho.resolve().is_relative_to(raiz_real):
             raise ValueError(f"O destino sai da pasta do volume: {destino}")
     return caminho
 
@@ -78,7 +79,7 @@ def caminho_registro(raiz, nome):
     if any(p in {".", ".."} or p.casefold() == ".git" for p in partes):
         raise ValueError(f"Caminho de registro precisa ser relativo e canônico: {nome}")
     caminho = caminho_local(raiz, raiz, quote(nome))
-    if any(p.casefold() == ".git" for p in caminho.resolve().relative_to(raiz).parts):
+    if any(p.casefold() == ".git" for p in caminho.resolve().relative_to(raiz.resolve()).parts):
         raise ValueError(f"Caminho de registro aponta para metadados Git: {nome}")
     return caminho
 
