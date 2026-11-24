@@ -9,11 +9,12 @@ from zipfile import BadZipFile
 from zlib import error as ErroCompressao
 
 from .arquivos import json_texto, ler_json
+from .editorial import abrir_editorial, ocorrencias_glossario, validar_vozes
 from .epub import Pacote, caminho_registro
 from .importacao import confirmar, conferir_destinos, descobrir, publicar_importacao
 from .inicializacao import iniciar
 from .migracao import invalidar, migrar, salvar_copia
-from .registro import abrir_projeto, calcular_status
+from .registro import abrir_projeto, calcular_status, validar_registro
 from .validacao import validar_entrega, verificar_projeto
 from .vistas import aplicar_vistas, gerar_vistas, inspecionar_vistas
 
@@ -128,7 +129,7 @@ def _iniciar(args):
 
 def _sincronizar(args):
     dados, raiz = abrir_projeto(args.projeto)
-    geradas = gerar_vistas(dados, calcular_status(dados, raiz))
+    geradas = gerar_vistas(dados, calcular_status(dados, raiz), raiz)
     plano = inspecionar_vistas(raiz, geradas)
     if args.aplicar:
         aplicar_vistas(geradas, plano)
@@ -159,6 +160,23 @@ def _modo_local(comando):
     modo.add_argument("--dry-run", action="store_true", help="mostra resultados sem gravar (padrão)")
     modo.add_argument("--aplicar", action="store_true", help="grava os artefatos locais")
     return modo
+
+
+def _editorial(args):
+    dados, raiz = abrir_projeto(args.projeto)
+    unidades, _, _ = validar_registro(dados, raiz)
+    registro = abrir_editorial(dados, raiz, args.comando)
+    if registro is None:
+        raise ValueError(f"Configure convencoes.{args.comando} no registro da obra.")
+    if args.comando == "vozes":
+        itens = validar_vozes(registro, dados)
+        print(json_texto({"schema": 1, "vozes": list(itens)}), end="")
+        return 0
+    if args.unidade and args.unidade not in unidades:
+        raise ValueError(f"Unidade desconhecida: {args.unidade}")
+    achados = ocorrencias_glossario(registro, dados, raiz, termo_id=getattr(args, "termo", None), unidade_id=args.unidade)
+    print(json_texto({"schema": 1, "diagnosticos": [asdict(item) for item in achados]}), end="")
+    return int(bool(achados) and getattr(args, "estrito", False))
 
 
 def main(argv=None):
@@ -202,6 +220,21 @@ def main(argv=None):
     entrega.add_argument("--volume", required=True, help="ID do volume")
     entrega.add_argument("--json", action="store_true")
     entrega.set_defaults(executar=_validar)
+    glossario = comandos.add_parser("glossario", help="confere decisões e lista ocorrências terminológicas")
+    acoes_glossario = glossario.add_subparsers(dest="acao", required=True)
+    for nome in ("verificar", "afetadas"):
+        acao = acoes_glossario.add_parser(nome)
+        _projeto(acao)
+        acao.add_argument("--unidade")
+        acao.set_defaults(executar=_editorial)
+        if nome == "afetadas":
+            acao.add_argument("--termo", required=True)
+        else:
+            acao.add_argument("--estrito", action="store_true")
+    vozes = comandos.add_parser("vozes", help="confere identidades e referências de voz")
+    acao = vozes.add_subparsers(dest="acao", required=True).add_parser("verificar")
+    _projeto(acao)
+    acao.set_defaults(executar=_editorial)
     args = parser.parse_args(argv)
     try:
         return args.executar(args)

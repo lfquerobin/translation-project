@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Referências opcionais de voz v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "vozes"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "vozes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "tipo"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "nome": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tipo": {
+            "enum": [
+              "personagem",
+              "narrativa"
+            ]
+          },
+          "edicao": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "escopo": {
+            "type": "object",
+            "properties": {
+              "inicio": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "fim": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              }
+            }
+          },
+          "exemplos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/exemplo"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "exemplo": {
+      "type": "object",
+      "required": [
+        "id",
+        "estado"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "estado": {
+          "enum": [
+            "confirmada",
+            "hipotese"
+          ]
+        },
+        "interlocutor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "situacao": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "formalidade": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tratamentos": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "maneirismos": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "vocabulario": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "original": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "traducao": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "edicao": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unidade": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "referencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "escopo": {
+          "type": "object",
+          "properties": {
+            "inicio": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "fim": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "confirmada"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "referencia",
+              "edicao",
+              "unidade",
+              "original",
+              "traducao"
+            ],
+            "properties": {
+              "referencia": {
+                "type": "string",
+                "minLength": 1
+              },
+              "edicao": {
+                "type": "string",
+                "minLength": 1
+              },
+              "unidade": {
+                "type": "string",
+                "minLength": 1
+              },
+              "original": {
+                "type": "string",
+                "minLength": 1
+              },
+              "traducao": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

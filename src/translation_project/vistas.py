@@ -6,6 +6,7 @@ import re
 from urllib.parse import quote
 
 from .arquivos import criar_arquivo, substituir_arquivo
+from .editorial import abrir_editorial, validar_glossario, validar_vozes
 from .epub import caminho_registro
 from .registro import ETAPAS
 
@@ -40,7 +41,7 @@ def _normalizar_lf(dados):
     return dados.replace(b"\r\n", b"\n")
 
 
-def gerar_vistas(dados, status):
+def gerar_vistas(dados, status, raiz=None):
     acompanhamento = [
         "# Acompanhamento da tradução", "",
         "Fonte de verdade: `projeto.json`. Regenere com `traducao sincronizar --projeto . --aplicar`.", "",
@@ -75,13 +76,65 @@ def gerar_vistas(dados, status):
         ]
         for item in dados.get("ocorrencias", []):
             if item["estado"] in estados:
-                detalhes = [item.get(campo) for campo in ("motivo", "fonte", "proximo_passo", "resolucao", "nota")]
+                detalhes = [item.get(campo) for campo in (
+                    "original", "motivo", "candidatos", "fonte", "proximo_passo", "resolucao", "nota",
+                )]
                 pendencias.append(linha_tabela([
                     item["id"], item["unidade"], item.get("trecho"), item["estado"],
                     " · ".join(str(v) for v in detalhes if v) or None,
                 ]))
         pendencias.append("")
-    return dict(zip(VISTAS, (vista(acompanhamento), vista(pendencias))))
+    geradas = dict(zip(VISTAS, (vista(acompanhamento), vista(pendencias))))
+    if raiz is not None:
+        glossario = abrir_editorial(dados, raiz, "glossario")
+        vozes = abrir_editorial(dados, raiz, "vozes")
+        if glossario is not None:
+            geradas["GLOSSÁRIO.md"] = _glossario(validar_glossario(glossario), dados["convencoes"]["glossario"])
+        if vozes is not None:
+            geradas["VOZES.md"] = _vozes(validar_vozes(vozes, dados), dados["convencoes"]["vozes"])
+    return geradas
+
+
+def _glossario(termos, arquivo):
+    linhas = ["# Glossário e decisões", "", f"Fonte de verdade: [{celula(arquivo)}]({quote(arquivo)}).", ""]
+    for termo in termos.values():
+        linhas += [
+            f"## {celula(termo['id'])}", "",
+            linha_tabela(["Original", "Idioma e leitura", "Forma adotada", "Estado", "Edição e escopo"]),
+            linha_tabela(["---"] * 5),
+            linha_tabela([termo["original"], f"{termo['idioma']} · {termo.get('romaji') or '—'}",
+                          termo["traducao"], termo["estado"], f"{termo.get('edicao') or '—'} · {termo.get('escopo', {})}"]),
+            "",
+        ]
+        for chave in ("contexto", "variantes_aceitas", "variantes_alerta", "referencias", "nota"):
+            if termo.get(chave):
+                linhas.append(f"- {chave.replace('_', ' ').capitalize()} · {celula(termo[chave])}")
+        for item in termo.get("historico", []):
+            linhas.append("- Histórico · " + celula(" · ".join(f"{k.replace('_', ' ')} = {v}" for k, v in item.items())))
+        linhas.append("")
+    return vista(linhas)
+
+
+def _vozes(vozes, arquivo):
+    linhas = ["# Referências de voz", "", f"Fonte de verdade: [{celula(arquivo)}]({quote(arquivo)}).", ""]
+    for voz in vozes.values():
+        linhas += [f"## {celula(voz['nome'])} ({celula(voz['id'])})", ""]
+        for chave in ("tipo", "edicao", "escopo", "nota", "historico"):
+            if voz.get(chave):
+                linhas.append(f"- {chave.capitalize()} · {celula(voz[chave])}")
+        linhas += ["", linha_tabela(["Exemplo", "Estado", "Unidade", "Original", "Tradução", "Referência"]),
+                   linha_tabela(["---"] * 6)]
+        for exemplo in voz.get("exemplos", []):
+            linhas.append(linha_tabela([exemplo["id"], exemplo["estado"], exemplo.get("unidade"),
+                                       exemplo.get("original"), exemplo.get("traducao"), exemplo.get("referencia")]))
+        for exemplo in voz.get("exemplos", []):
+            detalhes = ("edicao", "escopo", "interlocutor", "situacao", "formalidade",
+                        "tratamentos", "maneirismos", "vocabulario", "nota")
+            for campo in detalhes:
+                if exemplo.get(campo):
+                    linhas.append(f"- {celula(exemplo['id'])} · {campo.capitalize()} · {celula(exemplo[campo])}")
+        linhas.append("")
+    return vista(linhas)
 
 
 def inspecionar_vistas(raiz, geradas):

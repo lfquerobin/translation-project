@@ -5,6 +5,7 @@ import re
 from urllib.parse import unquote, urlsplit
 
 from .arquivos import ler_json
+from .editorial import abrir_editorial, ocorrencias_glossario, validar_vozes
 from .epub import Pacote, caminho_local, caminho_registro
 from .markdown import analisar_links, ancoras, visivel
 from .registro import calcular_status, lista, objeto, texto, validar_data
@@ -99,6 +100,10 @@ def verificar_projeto(dados, raiz, *, unidade=None, volume=None, conferir_vistas
     if volume is not None and volume not in {v["id"] for v in status["volumes"]}:
         raise ValueError(f"Volume desconhecido: {volume}")
     ocorrencias = {}
+    glossario = abrir_editorial(dados, raiz, "glossario")
+    vozes = abrir_editorial(dados, raiz, "vozes")
+    if vozes is not None:
+        validar_vozes(vozes, dados)
     for item in dados.get("ocorrencias", []):
         ocorrencias.setdefault(item["unidade"], []).append(item)
     for item in status["unidades"]:
@@ -122,6 +127,8 @@ def verificar_projeto(dados, raiz, *, unidade=None, volume=None, conferir_vistas
                 reportar("REVISAO_DESATUALIZADA", "pendencia", f"{etapa}. {revisao['motivo']}")
         for id_bloqueio in item["bloqueios"]:
             reportar("EDITORIAL_BLOQUEIO", "pendencia", f"Pendência bloqueante: {id_bloqueio}")
+    if glossario is not None:
+        achados.extend(ocorrencias_glossario(glossario, dados, raiz, unidade_id=unidade, volume=volume))
     if unidade is None and volume is None:
         registrados = {u["arquivo"] for u in dados["unidades"]}
         orfaos = set()
@@ -135,7 +142,7 @@ def verificar_projeto(dados, raiz, *, unidade=None, volume=None, conferir_vistas
         for nome in sorted(orfaos - registrados):
             achados.append(Achado("ARQUIVO_ORFAO", "aviso", nome, "Texto sem unidade correspondente."))
         if conferir_vistas or convencoes.get("vistas"):
-            for nome, (_, estado, _) in inspecionar_vistas(raiz, gerar_vistas(dados, status)).items():
+            for nome, (_, estado, _) in inspecionar_vistas(raiz, gerar_vistas(dados, status, raiz)).items():
                 if estado != "atual":
                     achados.append(Achado("VISTA_DIVERGENTE", "aviso", nome, f"Vista {estado}."))
     return status, achados

@@ -106,6 +106,20 @@ traducao validar-entrega --projeto "/caminho/obra" --volume V01
 
 O resultado é 0 se o modo escolhido passar, 1 se houver divergência ou pendência bloqueante para aquele modo e 2 para uso ou dados inválidos. Em modo estrito, avisos e pendências também falham. `--json` retorna um objeto versionado com códigos de diagnóstico.
 
+### Glossário e vozes opcionais
+
+Para adotar registros estruturados, configure os caminhos relativos em `convencoes.glossario` e `convencoes.vozes`. Os contratos são [glossário v1](../schemas/glossario-v1.schema.json) e [vozes v1](../schemas/vozes-v1.schema.json). Migre decisões, referências e notas antes de gerar as vistas Markdown correspondentes. Em um projeto que use apenas Markdown, mantenha os arquivos editoriais editáveis normalmente.
+
+```sh
+traducao glossario verificar --projeto "/caminho/obra" --estrito
+traducao glossario afetadas --projeto "/caminho/obra" --termo TERMO-001
+traducao vozes verificar --projeto "/caminho/obra"
+```
+
+Cadastre formas inteiras em `variantes_alerta`. Uma forma pode ser texto ou um objeto com `forma` e `flexoes` explicitamente registradas. A busca normaliza Unicode em NFC sem retirar acentos. Use `sensivel_caixa` para exigir a caixa registrada. `contexto_busca` e `excluir_contexto` limitam a busca na mesma linha. `edicao` e `escopo.inicio`/`fim` delimitam a aplicação narrativa. Citações entre aspas e código são ignorados por padrão. Os alertas localizam candidatas para revisão humana. A busca de afetadas também considera a forma adotada, variantes aceitas e formas anteriores do histórico.
+
+Vozes usam IDs próprios, inclusive para personagens com o mesmo nome. Uma hipótese pode ficar sem referência. Um exemplo confirmado exige edição, unidade, referência e os trechos original e traduzido. Associe as ocorrências confirmadas ao ID da voz quando útil. Preserve no registro candidatos e contexto e mantenha o tratamento independente do anonimato narrativo.
+
 Teste com exemplos artificiais de arquivos válidos, registros incompletos, caminhos divergentes, falas repetidas e vistas desatualizadas. Verifique também que a regeneração preserva os textos e que um registro vazio é tratado como um projeto em preparação. A leitura das fontes e a revisão em português continuam a cargo da revisão editorial.
 
 

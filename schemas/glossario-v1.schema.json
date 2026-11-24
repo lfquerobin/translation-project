@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Glossário opcional v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "termos"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "termos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "original",
+          "idioma",
+          "traducao",
+          "estado"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "original": {
+            "type": "string",
+            "minLength": 1
+          },
+          "idioma": {
+            "type": "string",
+            "minLength": 1
+          },
+          "traducao": {
+            "type": "string",
+            "minLength": 1
+          },
+          "romaji": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "contexto": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "edicao": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "escopo": {
+            "type": "object",
+            "properties": {
+              "inicio": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "fim": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              }
+            }
+          },
+          "estado": {
+            "enum": [
+              "obrigatorio",
+              "preferencia",
+              "alternativa_contextual",
+              "em_investigacao",
+              "proposto",
+              "revogado"
+            ]
+          },
+          "variantes_aceitas": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "forma"
+                  ],
+                  "properties": {
+                    "forma": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "flexoes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "variantes_alerta": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "forma"
+                  ],
+                  "properties": {
+                    "forma": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "flexoes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "sensivel_caixa": {
+            "type": "boolean"
+          },
+          "incluir_citacoes": {
+            "type": "boolean"
+          },
+          "referencias": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "contexto_busca": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "excluir_contexto": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "historico": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "forma_anterior": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

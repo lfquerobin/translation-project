@@ -9,7 +9,7 @@
 | 2 · Registro e revisões | Concluída | Esquemas centrais, status derivado, invalidações e migração central v1 exercitados com registros sintéticos. |
 | 3 · Importação | Concluída | Descoberta, confirmação, reexecução e confronto de edições validados com EPUB sintético. |
 | 4 · CLI e vistas | Concluída | Wheel e comando instalado conferidos a partir de outro diretório. Vistas e verificações cobertas por testes. |
-| 5 · Glossário e vozes | Pendente | Depende do registro e das vistas. |
+| 5 · Glossário e vozes | Concluída | Esquemas opcionais, alertas contextuais e vistas integrados à CLI. |
 | 6 · Memória | Pendente | Depende da estabilização dos registros. |
 | 7 · Instruções e painel | Pendente | Preservar o guia editorial central. |
 | 8 · CI e integração | Em andamento | Matriz Windows/Linux com Python 3.10 e 3.14 configurada. |
@@ -56,3 +56,10 @@
 - `vistas.py` protege as vistas editadas à mão com identificação e hash do conteúdo gerado. As substituições são atômicas por arquivo. A validação de entrega combina revisão registrada, conferência de conjunto e EPUB quando configurado.
 - A suíte passou com 29 testes. O teste inicial da wheel instalada com `--target` não encontrou os modelos porque os caminhos no RECORD apontavam para fora do diretório alvo. A localização inclui agora o diretório de dados da instalação por alvo. Depois de reconstruir e instalar a wheel, `traducao init --estruturado --dry-run` funcionou de outro diretório.
 - Comandos e convenções foram atualizados nos guias existentes. Projetos sem registro estruturado mantêm os modelos Markdown e suas ferramentas locais.
+
+## Fase 5
+
+- `editorial.py` valida glossário e vozes optativos, com IDs e escopo. Alertas usam palavras inteiras, flexões registradas, contexto de linha, edição e intervalo narrativo. A busca de termos alterados retorna ocorrências candidatas e deixa o texto intacto.
+- O glossário e as vozes usam os schemas v1 de `schemas/`. A geração optativa de `GLOSSÁRIO.md` e `VOZES.md` preserva referências e histórico. Os dados canônicos permanecem em JSON, e a proteção de vistas impede perda de notas em arquivos manuais.
+- A suíte passou com 33 testes. Os quatro novos casos exercitam contexto, flexão, Unicode NFD, citações, versões anteriores de termos, homônimas, referências de exemplos e preservação de notas e histórico. A fase 4 já exercita falas idênticas tratadas como ocorrências distintas.
+- A validação terminológica é uma busca configurável e exige leitura de contexto. Ela não infere flexões ou falantes e não aplica substituições.
